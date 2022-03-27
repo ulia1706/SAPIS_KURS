@@ -5,8 +5,8 @@
 #include <winsock2.h>
 #include <iostream>
 
-using namespace std;
-//ffd
+using namespace std; 
+//небольшие корректировки
 
 int main() {
 	SetConsoleCP(1251);

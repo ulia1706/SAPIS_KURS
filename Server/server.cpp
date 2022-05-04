@@ -17,30 +17,30 @@ void mailWorking(void* newS) {
 	com[0] = '\0'; p[0] = '\0'; k[0] = '\0'; m[0] = '\0';
 	cout << "Сервер работает.\n";
 	while (1) {
-		strcpy_s(p, "Добро пожаловать в Автосалон.\n");
+		strcpy_s(p, "ГЛАВНОЕ МЕНЮ:\n");
 		send((SOCKET)newS, p, sizeof(p), 0);
-		strcpy_s(k, "Меню:\n 1)Войти в качестве администратора;\n 2)Войти в качестве поставщика;\n 3)Войти в качестве эксперта;\n 4)Завершить работу программы.\n ");
+		strcpy_s(k, " 1. Войти как администратор.\n 2. Войти как поставщик.\n 3. Войти как эксперт.\n 4. Завершить работу.\n ");
 		send((SOCKET)newS, k, sizeof(k), 0);
 		p[0] = '\0'; k[0] = '\0';
-		recv((SOCKET)newS, m, sizeof(m), 0);
-		c = atoi(m);
+		recv((SOCKET)newS, m, sizeof(m), 0); //получили, какой пункт в главном меню выбрал клиент
+		c = atoi(m); //преобразовали в число типа инт
 		switch (c) {
 		case 1: {
 			strcpy_s(p, "1");
-			send((SOCKET)newS, p, sizeof(p), 0);
-			strcpy_s(p, "Авторизация");
+			send((SOCKET)newS, p, sizeof(p), 0); //передала в клиент единицу, чтобы у клиента открылся соответствующий кейс
+			strcpy_s(p, "Здесь будет авторизация админа. Честно, будет))");
 			send((SOCKET)newS, p, sizeof(p), 0);
 			while (c1 != 4) {
-				strcpy_s(k, "Меню администратора:\n 1)Работа с поставщиками;\n 2)Управление экспертами;\n 3)Изменить пароль и/или логин;\n 4)Выйти в главное меню.\n ");
+				strcpy_s(k, "МЕНЮ АДМИНИСТРАТОРА:\n 1. Работа с поставщиками.\n 2. Управление экспертами.\n 3. Изменить логин и/или пароль.\n 4. Вернуться в главное меню.");
 				send((SOCKET)newS, k, sizeof(k), 0);
 				recv((SOCKET)newS, m, sizeof(m), 0);
 				c1 = atoi(m);
 				switch (c1) {
 				case 1: {
-					strcpy_s(p, "1");
+					strcpy_s(p, "1"); //дали знать клиентскому приложению, с каким кейсом работаем
 					send((SOCKET)newS, p, sizeof(p), 0);
-					while (c2 != 3) {
-						strcpy_s(p, "Меню работы с поставщиками:\n 1)Просмотреть информацию об имеющихся поставщиках;\n 2)Прекратить сотрудничество с поставщиком;\n 3)Выйти в меню администратора.\n");
+					while (c2 != 4) {
+						strcpy_s(p, "РАБОТА С ПОСТАВЩИКАМИ:\n 1. Просмотреть список имеющихся поставщиков.\n 2. Заключить договор.\n 3. Расторгнуть договор. \n 4. Вернуться в меню администратора.\n");
 						send((SOCKET)newS, p, sizeof(p), 0);
 						recv((SOCKET)newS, m, sizeof(m), 0);
 						c2 = atoi(m);
@@ -60,6 +60,11 @@ void mailWorking(void* newS) {
 							send((SOCKET)newS, p, sizeof(p), 0);
 							break;
 						}
+						case 4: {
+							strcpy_s(p, "4");
+							send((SOCKET)newS, p, sizeof(p), 0);
+							break;
+						}
 						}
 					}
 					c2 = 0;
@@ -68,8 +73,8 @@ void mailWorking(void* newS) {
 				case 2: {
 					strcpy_s(p, "2");
 					send((SOCKET)newS, p, sizeof(p), 0);
-					while (c2 != 6) {
-						strcpy_s(p, "Меню управления экспертами:\n 1)Просмотреть информацию об экспертах;\n 2)Назначить эксперта;\n 3)Просмотреть заключенные договора;\n 4)Удалить эксперта;\n 5)Отредактировать информацию об эксперте;\n 6)Выйти в меню администратора.\n");
+					while (c2 != 5) {
+						strcpy_s(p, "УПРАВЛЕНИЕ ЭКСПЕРТАМИ:\n 1. Просмотреть информацию об экспертах.\n 2. Назначить эксперта.\n 3. Удалить эксперта.\n 4. Отредактировать информацию об эксперте. \n 5. Вернуться в меню администратора.\n");
 						send((SOCKET)newS, p, sizeof(p), 0);
 						recv((SOCKET)newS, m, sizeof(m), 0);
 						c2 = atoi(m);
@@ -78,7 +83,7 @@ void mailWorking(void* newS) {
 							strcpy_s(p, "1");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							while (c3 != 3) {
-								strcpy_s(p, "Меню вывода информации об экспертах:\n 1)Просмотреть информацию об экспертах в алфавитном порядке;\n 2)Просмотреть информацию об экспертах в порядке убывания стажа;\n 3)Выйти в меню управления экспертами.\n");
+								strcpy_s(p, "ИНФОРМАЦИЯ ОБ ЭКСПЕРТАХ:\n 1. Просмотреть в алфавитном порядке. \n 2. Просмотреть в порядке убывания стажа.\n 3. Вернуться в меню управления экспертами.\n");
 								send((SOCKET)newS, p, sizeof(p), 0);
 								recv((SOCKET)newS, m, sizeof(m), 0);
 								c3 = atoi(m);
@@ -123,11 +128,6 @@ void mailWorking(void* newS) {
 							send((SOCKET)newS, p, sizeof(p), 0);
 							break;
 						}
-						case 6: {
-							strcpy_s(p, "6");
-							send((SOCKET)newS, p, sizeof(p), 0);
-							break;
-						}
 						}
 					}
 					c2 = 0;
@@ -137,7 +137,7 @@ void mailWorking(void* newS) {
 					strcpy_s(p, "3");
 					send((SOCKET)newS, p, sizeof(p), 0);
 					while (c2 != 3) {
-						strcpy_s(p, "Меню изменения пароля и/или логина:\n 1)Изменить пароль;\n 2)Изменить логин;\n 3)Выйти в меню администратора.\n");
+						strcpy_s(p, "ИЗМЕНИТЬ ЛОГИН И/ИЛИ ПАРОЛЬ:\n 1. Изменить пароль.\n 2. Изменить логин.\n 3. Вернуться в меню администратора.\n");
 						send((SOCKET)newS, p, sizeof(p), 0);
 						recv((SOCKET)newS, m, sizeof(m), 0);
 						c2 = atoi(m);
@@ -176,8 +176,8 @@ void mailWorking(void* newS) {
 			strcpy_s(p, "2");
 			send((SOCKET)newS, p, sizeof(p), 0);
 			p[0] = '\0';
-			while (c1 != 4) {
-				strcpy_s(k, "Меню поставщика:\n 1)Ввести информацию о своих услугах;\n 2)Отредактировать информацию о своих услугах;\n 3)Удалить информацию о своих услугах;\n 4)Выйти в главное меню.\n ");
+			while (c1 != 6) {
+				strcpy_s(k, "МЕНЮ ПОСТАВЩИКА:\n 1. Ввести информацию.\n 2. Отредактировать информацию.\n 3. Удалить информацию.\n 4. Заключить договор.\n 5. Расторгнуть договор.\n 6. Вернуться в главное меню.\n ");
 				send((SOCKET)newS, k, sizeof(k), 0);
 				recv((SOCKET)newS, m, sizeof(m), 0);
 				c1 = atoi(m);
@@ -202,6 +202,16 @@ void mailWorking(void* newS) {
 					send((SOCKET)newS, p, sizeof(p), 0);
 					break;
 				}
+				case 5: {
+					strcpy_s(p, "5");
+					send((SOCKET)newS, p, sizeof(p), 0);
+					break;
+				}
+				case 6: {
+					strcpy_s(p, "6");
+					send((SOCKET)newS, p, sizeof(p), 0);
+					break;
+				}
 				}
 			}
 			c1 = 0;
@@ -211,7 +221,7 @@ void mailWorking(void* newS) {
 			strcpy_s(p, "3");
 			send((SOCKET)newS, p, sizeof(p), 0);
 			while (c1 != 3) {
-				strcpy_s(k, "Меню эксперта:\n 1)Просмотреть информацию о потенциальных поставщиках;\n 2)Выбрать наиболее подходящего поставщика;\n 3)Выйти в главное меню.\n ");
+				strcpy_s(k, "МЕНЮ ЭКСПЕРТА:\n 1. Просмотреть информацию о потенциальных поставщиках.\n 2. Выбрать наиболее подходящего поставщика.\n 3. Вернуться в главное меню.\n ");
 				send((SOCKET)newS, k, sizeof(k), 0);
 				recv((SOCKET)newS, m, sizeof(m), 0);
 				c1 = atoi(m);
@@ -220,11 +230,11 @@ void mailWorking(void* newS) {
 					strcpy_s(p, "1");
 					send((SOCKET)newS, p, sizeof(p), 0);
 					while (c2 != 5) {
-						strcpy_s(k, "Меню просмотра информации о потенциальных поставщиках:\n 1)Просмотреть информацию о потенциальных поставщиках в алфавитном порядке;\n 2)Просмотреть информацию о потенциальных поставщиках с фильтрацией по странам;\n 3)Просмотреть информацию о потенциальных поставщиках в определенном ценовом диапазоне;\n 4)Найти и просмотреть информацию о конкретном поставщике;\n 5)Выйти в меню эксперта.\n ");
+						strcpy_s(k, "ИНФОРМАЦИЯ О ПОТЕНЦИАЛЬНЫХ ПОСТАВЩИКАХ:\n 1. В алфавитном порядке.\n 2. С фильтрацией по странам.\n 3. С фильтрацией по минимальной разовой цене закупки.\n 4. Поиск конкретного поставщика.\n 5. Вернуться в меню эксперта.\n ");
 						send((SOCKET)newS, k, sizeof(k), 0);
 						recv((SOCKET)newS, m, sizeof(m), 0);
-						c1 = atoi(m);
-						switch (c1) {
+						c2 = atoi(m);
+						switch (c2) {
 						case 1: {
 							strcpy_s(p, "1");
 							send((SOCKET)newS, p, sizeof(p), 0);
@@ -273,16 +283,14 @@ void mailWorking(void* newS) {
 		case 4: {
 			strcpy_s(p, "4");
 			send((SOCKET)newS, p, sizeof(p), 0);
-			closesocket((SOCKET)newS);
-			exit(EXIT_SUCCESS);
+			closesocket((SOCKET)newS); //сокет закрываем
+			exit(EXIT_SUCCESS);        //и выходим
 			break;
 		}
 		}
-
-		///(c = recv((SOCKET)newS, p, sizeof(p), 0) != 0)
 	}
-
 }
+
 
 int main() {
 	SetConsoleCP(1251);
@@ -292,21 +300,24 @@ int main() {
 	int err;
 	wVersionRequested = MAKEWORD(2, 2);
 	err = WSAStartup(wVersionRequested, &wsaData);
-	if (err != 0)
+	if (err != 0) {
+		cout << "Ошибка использования Winsock DLL" << endl;
 		return -1;
+	}
+
 	sockaddr_in local;
 	local.sin_family = AF_INET;
 	local.sin_port = htons(1280);
 	local.sin_addr.s_addr = htonl(INADDR_ANY);
 	SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
-	int c = bind(s, (struct sockaddr*)&local, sizeof(local));
-	int r = listen(s, 5);
+	int c = bind(s, (struct sockaddr*)&local, sizeof(local)); //соединение с сокетом
+	int r = listen(s, 5);  //режим ожидания запросов от клиентов
 	while (true) {
 		sockaddr_in remote;
 		int j = sizeof(remote);
 		SOCKET newS = accept(s, (struct sockaddr*)&remote, &j);
 		_beginthread(mailWorking, 0, (void*)newS);  //создание потока(Начальный адрес процедуры, который начинает выполнение нового потока; размер стека нового потока или 0; список аргументов, передаваемый в новый поток, или NULL)
 	}
-	WSACleanup();
+	WSACleanup();  //прекращаем работу Winsock API
 	return 0;
 }

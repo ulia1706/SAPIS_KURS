@@ -5,10 +5,90 @@
 #include <process.h> /* _beginthread, _endthread */  //содержит объявления функций и макросы, используемые при работе с потоками и процессами
 #include <string.h>
 #include <fstream>
+#include <list>
 
 using namespace std;
 CFile f;  //Базовый класс для файловых классов Microsoft Foundation Class. Создает CFileобъект из пути или дескриптора файла
 CFileException ex;
+
+class Authorization {
+protected:
+	char login[20];
+	char password[20];
+public:
+	int CheckLogin(); //возвращает 1, если всё правильно, 2 - если неправильно (к примеру) //проверка правильности логина
+	int CheckPassword(); //проверка правильности пароля
+	void ChangeLogin(); //изменить логин
+	void ChangePassword(); //изменить пароль
+};
+
+class CarShowroom: public Authorization {
+protected:
+	//добавить информации об автосалоне
+	char name[50]; //название автосалона
+	char F[50]; //фамилия сотрудника автосалона
+	char I[50]; //имя сотрудника
+	char O[50]; //отчество
+public:
+	void SetF(); //ввести фамилию
+	void SetI(); //ввести имя
+	void SetO(); //ввести отчество
+};
+
+class Admin :public CarShowroom {
+public:
+	//методы администратора
+};
+
+class Expert : public CarShowroom {
+	int pos; //должность
+	int exp; //опыт
+public:
+	Expert() {
+		strcpy_s(F, "-");
+		strcpy_s(I, "-");
+		strcpy_s(O, "-");
+		pos = 0;
+		exp = 0;
+	}
+	//методы эксперта
+	friend bool operator<(Expert e1, Expert e2);
+};
+
+bool operator<(Expert e1, Expert e2) {
+	return strcmp(e1.F, e2.F) < 0;
+}
+
+class Supplier :public CarShowroom {
+	char name[50]; //название организации
+	char phone[20]; //контактный телефон
+	char email[50]; //электронная почта
+	int contracts; //количество действующих договоров
+	//список договоров
+	//список заявок
+	float min_price; //цена минимальной разовой закупки
+public:
+	Supplier() {
+		strcpy_s(name, "-");
+		strcpy_s(phone, "-");
+		strcpy_s(email, "-");
+		contracts = 0;
+		min_price = 0;
+	}
+	friend bool operator<(Supplier s1, Supplier s2);
+	//методы поставщика
+};
+
+bool operator<(Supplier s1, Supplier s2) {
+	return strcmp(s1.F, s2.F) < 0;
+}
+
+class Contract{}; //информация и методы, связанные с контрактами для обеих сторон,
+//этот класс будет включен в виде списка в класс админ/салон и класс поставщик
+
+class Request{}; //инфа и методы о заявках для обеих сторон
+
+class Method{}; //поля и методы, связанные с методом ранга, включён в класс эксперты
 
 void mailWorking(void* newS) {
 	int c, c1 = 0, c2 = 0, c3 = 0;
@@ -185,6 +265,8 @@ void mailWorking(void* newS) {
 				case 1: {
 					strcpy_s(p, "1");
 					send((SOCKET)newS, p, sizeof(p), 0);
+					recv((SOCKET)newS, com, sizeof(m), 0);
+					cout << com << endl;
 					break;
 				}
 				case 2: {

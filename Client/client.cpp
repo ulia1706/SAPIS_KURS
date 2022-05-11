@@ -1,14 +1,9 @@
 ﻿#define _AFXDLL
-//So you must use the DLL version of MFC and the DLL version of the C and C++ 
-//runtime libraries, and link their import libraries, they take on that responsibility
-//And you have to tell the compiler about it, so that the library will go looking for the 
-//right place for those globals.That requires #defining _AFXDLL.Read it like "the application
-//framework lives in its own DLL".The CRT has a macro for that as well, it is _DLL.
-#define _WINSOCK_DEPRECATED_NO_WARNINGS //постараться избавиться от этой штуки
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #pragma comment(lib, "ws2_32.lib")
 #include <winsock2.h>
 #include <iostream>
-#include<conio.h> //для getch
+#include<conio.h> //для getch()
 
 using namespace std;
 
@@ -18,7 +13,7 @@ int CheckNumber()     //пропускает только целые числа
 	while (1) {
 		cin >> number;
 		if (cin.get() != '\n') {
-			cout << "Это не похоже на целое число... Повторите попытку : " << endl;
+			cout << "Это не похоже на целое число... Пожалуйста, повторите попытку: " << endl;
 			cin.clear();
 			cin.ignore(32767, '\n');
 		}
@@ -26,19 +21,19 @@ int CheckNumber()     //пропускает только целые числа
 	}
 }
 
-int CheckPlace(char* str) {
+int CheckPlace(char* str) { //проверка на корректный ввод страны и города (буквы кириллицы, пробел, дефис)
 	int flag = 0, k;
 	k = strlen(str);
 		for (int i = 0; i < k; i++) {
-			if ((str[i] >= (-64)) && (str[i] <= (-1)))
+			if ((str[i] >= (-64)) && (str[i] <= (-1))) //буквы кириллицы
 			{
 				flag++;
 			}
-			if ((str[i] == (-88)) || (str[i] == (-72)))
+			if ((str[i] == (-88)) || (str[i] == (-72))) //"Ё" и "ё"
 			{
 				flag++;
 			}
-			if ((str[i] == 45) || (str[i] == 32)) {
+			if ((str[i] == 45) || (str[i] == 32)) { //дефис и пробел
 				flag++;
 			}
 		}
@@ -46,38 +41,38 @@ int CheckPlace(char* str) {
 		else return 2;
 }
 
-int CheckPhone(char* str) {
+int CheckPhone(char* str) { //проверка на корректный ввод номера телефона(цифры, пробел, дефис, круглые скобки, плюс)
 	int flag = 0, k;
 	k = strlen(str);
 	for (int i = 0; i < k; i++) {
-		if ((str[i] >= (48)) && (str[i] <= (57)))
+		if ((str[i] >= (48)) && (str[i] <= (57))) //цифры
 		{
 			flag++;
 		}
-		if ((str[i] == (41)) || (str[i] == (40)))
+		if ((str[i] == (41)) || (str[i] == (40))) //круглые скобки
 		{
 			flag++;
 		}
-		if ((str[i] == 43) || (str[i] == 32)) {
+		if ((str[i] == 43) || (str[i] == 32)) {// плюс и пробел
 			flag++;
 		}
-		if (str[i] == 45) {
+		if (str[i] == 45) { //дефис
 			flag++;
 		}
 	}
-	if (flag != k) return 1;
-	else return 2;
+	if (flag != k) return 1; //при некорректном вводе
+	else return 2;           //при корректном вводе
 }
 
-int CheckEmail(char* str) {
+int CheckEmail(char* str) { //проверка на корректность ввода email
 	int flag = 0, k,g=0;
 	k = strlen(str);
 	for (int i = 0; i < k; i++) {
-		if ((str[i] >= 65) && (str[i] <= 90)) //большие латинские
+		if ((str[i] >= 65) && (str[i] <= 90)) //большие латинские буквы
 		{
 			flag++;
 		}
-		if ((str[i] >= 97) && (str[i] <= 122)) //маленькие латинские
+		if ((str[i] >= 97) && (str[i] <= 122)) //маленькие латинские буквы
 		{
 			flag++;
 		}
@@ -93,17 +88,17 @@ int CheckEmail(char* str) {
 			g++;
 		}
 	}
-	if ((flag != k)||(g!=2)) return 1;
-	else return 2;
+	if ((flag != k)||(g!=2)) return 1; //при некорректном вводе
+	else return 2;                     //при корректном вводе
 }
 
-float CheckFloat()     //пропускает дробные числа и числа с плавающей точкой
+float CheckFloat()     //пропускает целые и дробные числа
 {
 	float number;
 	while (1) {
 		cin >> number;
 		if (cin.get() != '\n') {
-			cout << "Это не похоже на целое или дробное число... Повторите попытку : " << endl;
+			cout << "Это не похоже на целое или дробное число... Пожалуйста, повторите попытку: " << endl;
 			cin.clear();
 			cin.ignore(32767, '\n');
 		}
@@ -111,7 +106,7 @@ float CheckFloat()     //пропускает дробные числа и чи�
 	}
 }
 
-float CheckChoiceF(float a, float b) //сужает целые числа до определённого диапазона (от a до b)
+float CheckChoiceF(float a, float b) //сужает дробные числа до определённого диапазона (от a до b)
 {
 	float choice = 0;
 	while (choice == 0) {
@@ -137,7 +132,7 @@ int CheckChoice(int a, int b) //сужает целые числа до опре
 	return choice;
 }
 
-int CheckLogin(char* str) {
+int CheckLogin(char* str) { //проверка на корректность введённого логина
 	int flag = 0, k;
 	k = strlen(str);
 	for (int i = 0; i < k; i++) {
@@ -165,7 +160,7 @@ int CheckLogin(char* str) {
 	else return 2;
 }
 
-int CheckPassword(char* str) {
+int CheckPassword(char* str) { //проверка на корректность введённого пароля
 	int flag = 0, k;
 	k = strlen(str);
 	if ((strlen(str) > 18) || (strlen(str) < 8)) {
@@ -173,7 +168,7 @@ int CheckPassword(char* str) {
 		return 0;
 	}
 	for (int i = 0; i < k; i++) {
-		if ((str[i] >= (-64)) && (str[i] <= (-1)))
+		if ((str[i] >= (-64)) && (str[i] <= (-1))) //не включает буквы кириллицы, дефис и пробел
 		{
 			flag++;
 		}
@@ -189,15 +184,7 @@ int CheckPassword(char* str) {
 	else return 2;
 }
 
-//bool check(char* str)
-//{
-//	for (int i = 0; str[i] != '\0'; i++)
-//		if (str[i] == '!' || str[i] == '@' || str[i] == '#' || str[i] == '$' || str[i] == '%' || str[i] == '^' || str[i] == '&' || str[i] == '*' || str[i] == '/' || str[i] == '.')
-//			return false;
-//	return true;
-//}
-
-int CheckLetters(char stroka[100]) //добавить ещё английские буковки может???
+int CheckLetters(char stroka[100]) //проверка для ФИО (только буквы кириллицы)
 {
 	int k, flag = 0;
 	k = strlen(stroka);
@@ -230,10 +217,9 @@ int CheckLetters(char stroka[100]) //добавить ещё английски�
 int main() {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
-
 	WORD wVersionRequested;
 	WSADATA wsaData;
-	int err, t, t1 = 0, t2 = 0, t3 = 0;
+	int err, t, t1 = 0, t2 = 0, t3 = 0; //набор переменных для работы
 	wVersionRequested = MAKEWORD(2, 2);
 	err = WSAStartup(wVersionRequested, &wsaData); //инициализируем WinSock API
 	if (err != 0)
@@ -241,27 +227,22 @@ int main() {
 		cout << "Ошибка использования Winsock DLL" << endl;
 		return -1;
 	}
-
 	struct sockaddr_in peer;
 	peer.sin_family = AF_INET;
 	peer.sin_port = htons(1280);
-	// т.к. клиент и сервер на одном компьютере,
-	// пишем адрес 127.0.0.1
-	peer.sin_addr.s_addr = inet_addr("127.0.0.1");
-	SOCKET s = socket(AF_INET, SOCK_STREAM, 0); //Создаем сокет, использующий протокол TCP, при помощи функции socket
-	connect(s, (struct sockaddr*)&peer, sizeof(peer)); //Устанавливаем соединение с сервером, используя функцию connect.
-	char b[500], buf[500], f[500], k[500], num[500];
-	while (1) {
-		recv(s, b, sizeof(b), 0); //прочитали информацию из сокета в b
-		recv(s, f, sizeof(f), 0); //прочитали информацию из сокета в f
-		cout << b; //вывели полученную в b информацию на экран
-		cout << f; //вывели полученную в f информацию на экран
-		t=CheckChoice(1,4);  //ввели t (отвечает за выбор пункта в главном меню)
-		_itoa_s(t, b, 10); //преобразовали в символьный тип, записали в буфер b
-		send(s, b, sizeof(b), 0); //отправили на сервер
+	peer.sin_addr.s_addr = inet_addr("127.0.0.1");       //выбор адреса обусловлен тем, что сервер и клиент расположены на одном компьютере
+	SOCKET s = socket(AF_INET, SOCK_STREAM, 0);          //создаем сокет, использующий протокол TCP, при помощи функции socket
+	connect(s, (struct sockaddr*)&peer, sizeof(peer));   //устанавливаем соединение с сервером, используя функцию connect
+	char b[500], buf[500], f[500], k[500], num[500];     //набор "буферов" для работы
+	while (1) {                                          //ЦИКЛ ГЛАВНОГО МЕНЮ
+		f[0] = '\0'; b[0] = '\0';
+		recv(s, b, sizeof(b), 0); recv(s, f, sizeof(f), 0);
+		cout << b; cout << f;
+		t=CheckChoice(1,4);                              //выбор пункта в главном меню
+		_itoa_s(t, b, 10);                              
+		send(s, b, sizeof(b), 0); 
 		recv(s, k, sizeof(k), 0);
-		t = atoi(k);   //число отвечающее за номер кейса в соответствии с главным меню
-		system("cls");
+		t = atoi(k);                                     //номер кейса в главном меню
 		switch (t) {
 		case 1: {
 			recv(s, k, sizeof(k), 0);
@@ -393,7 +374,8 @@ int main() {
 			break;
 		}
 		case 2: {
-			while (t1 != 6) {
+			
+			while (t1 != 3) {
 				recv(s, k, sizeof(k), 0);
 				cout << k << endl;
 				t1=CheckChoice(1,6);
@@ -572,18 +554,56 @@ int main() {
 					break;
 				}
 				case 2: {
+					//авторизация
+					f[0] = '\0';
+					strcpy_s(f, "a");
+					while (strcmp(f, "b") != 0) {
+						b[0] = '\0';
+						k[0] = '\0';
+						cout << "Введите логин:  " << endl;
+						cin.getline(b, 50, '\n');
+						cout << "Введите пароль:  " << endl;
+						cin.getline(k, 50, '\n');
+						send(s, b, sizeof(b), 0);
+						send(s, k, sizeof(b), 0);
+						f[0] = '\0';
+						recv(s, f, sizeof(f), 0);
+					}
+					while (t1 != 5) {
+						k[0] = '\0';
+						b[0] = '\0';
+						recv(s, k, sizeof(k), 0);
+						cout << k << endl;
+						k[0] = '\0';
+						t1 = CheckChoice(1, 5);
+						_itoa_s(t1, b, 10);
+						send(s, b, sizeof(b), 0);
+						recv(s, k, sizeof(k), 0);
+						t1 = atoi(k);
+						k[0] = '\0';
+						b[0] = '\0';
+						switch (t1) {
+						case 1: {
+							break;
+						}
+						case 2: {
+							break;
+						}
+						case 3: {
+							break;
+						}
+						case 4: {
+							break;
+						}
+						case 5: {
+							break;
+						}
+						}
+					}
+					t1 = 0;
 					break;
 				}
 				case 3: {
-					break;
-				}
-				case 4: {
-					break;
-				}
-				case 5: {
-					break;
-				}
-				case 6: {
 					break;
 				}
 				}
@@ -593,6 +613,8 @@ int main() {
 		}
 		case 3: {
 			while (t1 != 3) {
+				k[0] = '\0';
+				b[0] = '\0';
 				recv(s, k, sizeof(k), 0);
 				cout << k << endl;
 				t1=CheckChoice(1,3);
@@ -603,6 +625,8 @@ int main() {
 				switch (t1) {
 				case 1: {
 					while (t2 != 5) {
+						k[0] = '\0';
+						b[0] = '\0';
 						recv(s, k, sizeof(k), 0);
 						cout << k << endl;
 						t2=CheckChoice(1,5);
@@ -610,11 +634,36 @@ int main() {
 						send(s, b, sizeof(b), 0);
 						recv(s, k, sizeof(k), 0);
 						t2 = atoi(k);
-						switch (t1) {
+						switch (t2) {
 						case 1: {
+							b[0] = '\0';
+							k[0] = '\0';
+							strcpy_s(k, "конец");
+							strcpy_s(b, "f");
+							while (strcmp(b, k) != 0) {
+								b[0] = '\0';
+								recv(s, b, sizeof(b), 0);
+								cout << b << endl;
+							}
+							cout << "вышел из цикла" << endl;
+							k[0] = '\0';
 							break;
 						}
 						case 2: {
+							b[0] = '\0';
+							cout << "Введите интересующую Вас страну:" << endl;
+							cin.getline(b, 50, '\n');
+							send(s, b, sizeof(b), 0);
+							k[0] = '\0';
+							f[0] = '\0';
+							strcpy_s(f, "Поставщик из заданной страны не найден!\n");
+							strcpy_s(k, "конец");
+							while ((strcmp(b, k) != 0)&&(strcmp(b, f)!=0)) {
+								b[0] = '\0';
+								recv(s, b, sizeof(b), 0);
+								cout << b << endl;
+							}
+							cout << "вышел из цикла" << endl;
 							break;
 						}
 						case 3: {

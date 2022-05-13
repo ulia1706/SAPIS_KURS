@@ -267,9 +267,34 @@ int main() {
 						t2 = atoi(k);
 						switch (t2) {
 						case 1: {
+							b[0] = '\0';
+							k[0] = '\0';
+							strcpy_s(k, "конец");
+							strcpy_s(b, "f");
+							while (strcmp(b, k) != 0) {
+								b[0] = '\0';
+								recv(s, b, sizeof(b), 0);
+								cout << b << endl;
+							}
+							cout << "вышел из цикла" << endl;
+							k[0] = '\0';
 							break;
 						}
 						case 2: {
+							b[0] = '\0';
+							cout << "Введите интересующего Вас поставщика:" << endl;
+							cin.getline(b, 50, '\n');
+							send(s, b, sizeof(b), 0);
+							k[0] = '\0';
+							f[0] = '\0';
+							strcpy_s(f, "Такой поставщик не был зарегистрирован!\n");
+							strcpy_s(k, "конец");
+							while ((strcmp(b, k) != 0) && (strcmp(b, f) != 0)) {
+								b[0] = '\0';
+								recv(s, b, sizeof(b), 0);
+								cout << b << endl;
+							}
+							cout << "вышел из цикла" << endl;
 							break;
 						}
 						case 3: {
@@ -304,6 +329,7 @@ int main() {
 								t3 = atoi(k);
 								switch (t3) {
 								case 1: {
+
 									break;
 								}
 								case 2: {
@@ -667,9 +693,46 @@ int main() {
 							break;
 						}
 						case 3: {
+							b[0] = '\0';
+							float a, c;
+							cout << "Введите нижнюю границу минимальной суммы разовой закупки:" << endl;
+							a = CheckChoiceF(1, 1000000000);
+							sprintf_s(b, "%.2f", a);
+							//cin.getline(b, 50, '\n');
+							send(s, b, sizeof(b), 0);
+							b[0] = '\0';
+							cout << "Введите верхнюю границу минимальной суммы разовой закупки:" << endl;
+							c = CheckChoiceF(1, 1000000000);
+							sprintf_s(b, "%.2f", c);
+							//cin.getline(b, 50, '\n');
+							send(s, b, sizeof(b), 0);
+							k[0] = '\0';
+							f[0] = '\0';
+							strcpy_s(f, "Такие поставщики не найдены!\n");
+							strcpy_s(k, "конец");
+							while ((strcmp(b, k) != 0) && (strcmp(b, f) != 0)) {
+								b[0] = '\0';
+								recv(s, b, sizeof(b), 0);
+								cout << b << endl;
+							}
+							cout << "вышел из цикла" << endl;
 							break;
 						}
 						case 4: {
+							b[0] = '\0';
+							cout << "Введите интересующего Вас поставщика:" << endl;
+							cin.getline(b, 50, '\n');
+							send(s, b, sizeof(b), 0);
+							k[0] = '\0';
+							f[0] = '\0';
+							strcpy_s(f, "Такой поставщик не был зарегистрирован!\n");
+							strcpy_s(k, "конец");
+							while ((strcmp(b, k) != 0) && (strcmp(b, f) != 0)) {
+								b[0] = '\0';
+								recv(s, b, sizeof(b), 0);
+								cout << b << endl;
+							}
+							cout << "вышел из цикла" << endl;
 							break;
 						}
 						case 5: {

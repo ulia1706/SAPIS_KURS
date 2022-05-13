@@ -168,8 +168,12 @@ public:
 	float Get_min_price() { return min_price; }
 	void WriteFile(list<Supplier> lst);
 	void WriteTable(list <Supplier> lst);
+	void WriteTableAdm(list<Supplier> lst);
 	void Sorting(list<Supplier> lst);
 	int Filtr_1(list<Supplier>lst, char* str);
+	int Filtr_2(list<Supplier> lst, float a, float b);
+	int Find(list<Supplier> lst, char* str);
+	int FindAdm(list<Supplier> lst, char* str);
 };
 
 void Supplier::WriteFile(list<Supplier> lst)
@@ -209,6 +213,23 @@ void Supplier::WriteTable(list<Supplier> lst)
 	file.close();
 }
 
+void Supplier::WriteTableAdm(list<Supplier> lst)
+{
+	list<Supplier>::iterator p;
+	ofstream file("Supp_table_adm.txt", ios_base::trunc);
+	file << setw(101) << setfill('-') << "" << endl;
+	file << setfill(' ') << "|" << setw(15) << "Поставщик" << setw(8) << "|" << setw(13) << "ФИО" << setw(10) << "|" << setw(17) << "Контактный" << setw(7) << "|" << setw(17) << "Email" << setw(13) << "|" <<  endl;
+	file << setfill(' ') << "|" << setw(23) << "|" << setw(23) << "|" << setw(16) << "телефон" << setw(8) << "|" << setw(30) << "|" << endl;
+	file << setw(101) << setfill('-') << "" << endl;
+	for (p = lst.begin(); p != lst.end(); p++) {
+		file << setfill(' ') << "|" << left << setw(22) << p->Get_nameorg() << right << "|" << left << setw(22) << p->GetF() << right << "|" << left << setw(23) << p->Get_phone() << right << "|" << left << setw(29) << p->Get_email() << right << "|"  << endl;
+		file << setfill(' ') << "|"  << setw(23)  << "|" << left << setw(22) << p->GetI() << right << "|"  << setw(24)  << "|" <<  setw(30) <<  "|" << endl;
+		file << setfill(' ') << "|" << setw(23) << "|" << left << setw(22) << p->GetO() << right << "|" << setw(24) << "|" << setw(30) << "|" << endl;
+		file << setw(101) << setfill('-') << "" << endl;
+	}
+	file.close();
+}
+
 void Supplier::Sorting(list<Supplier> lst)
 {
 	lst.sort();
@@ -241,6 +262,68 @@ int Supplier::Filtr_1(list<Supplier> lst, char* str)
 			file << setw(107) << setfill('-') << "" << endl;
 			i++;
 		}	
+	}
+	file.close();
+	return i;
+}
+
+int Supplier::Filtr_2(list<Supplier> lst, float a, float b)
+{
+	int i = 0;
+	list<Supplier>::iterator p;
+	ofstream file("Supp_table_f2.txt", ios_base::trunc);
+	file << setw(107) << setfill('-') << "" << endl;
+	file << setfill(' ') << "|" << setw(15) << "Поставщик" << setw(8) << "|" << setw(15) << "Страна" << setw(8) << "|" << setw(15) << "Город" << setw(9) << "|" << setw(15) << "Количество" << setw(4) << "|" << setw(10) << "min" << setw(7) << "|" << endl;
+	file << setfill(' ') << "|" << setw(23) << "|" << setw(23) << "|" << setw(24) << "|" << setw(14) << "договоров" << setw(5) << "|" << setw(11) << "сумма" << setw(6) << "|" << endl;
+	file << setw(107) << setfill('-') << "" << endl;
+	for (p = lst.begin(); p != lst.end(); p++) {
+		if ((p->min_price>=a)&&(p->min_price<=b)) {
+			file << setfill(' ') << "|" << left << setw(22) << p->Get_nameorg() << right << "|" << left << setw(22) << p->Get_country() << right << "|" << left << setw(23) << p->Get_city() << right << "|" << left << setw(18) << p->Get_contracts() << right << "|" << left << setw(16) << p->Get_min_price() << right << "|" << endl;
+			file << setw(107) << setfill('-') << "" << endl;
+			i++;
+		}
+	}
+	file.close();
+	return i;
+}
+
+int Supplier::Find(list<Supplier> lst, char* str)
+{
+	int i = 0;
+	list<Supplier>::iterator p;
+	ofstream file("Supp_table_f.txt", ios_base::trunc);
+	file << setw(107) << setfill('-') << "" << endl;
+	file << setfill(' ') << "|" << setw(15) << "Поставщик" << setw(8) << "|" << setw(15) << "Страна" << setw(8) << "|" << setw(15) << "Город" << setw(9) << "|" << setw(15) << "Количество" << setw(4) << "|" << setw(10) << "min" << setw(7) << "|" << endl;
+	file << setfill(' ') << "|" << setw(23) << "|" << setw(23) << "|" << setw(24) << "|" << setw(14) << "договоров" << setw(5) << "|" << setw(11) << "сумма" << setw(6) << "|" << endl;
+	file << setw(107) << setfill('-') << "" << endl;
+	for (p = lst.begin(); p != lst.end(); p++) {
+		if (strcmp(str, p->nameorg) == 0) {
+			file << setfill(' ') << "|" << left << setw(22) << p->Get_nameorg() << right << "|" << left << setw(22) << p->Get_country() << right << "|" << left << setw(23) << p->Get_city() << right << "|" << left << setw(18) << p->Get_contracts() << right << "|" << left << setw(16) << p->Get_min_price() << right << "|" << endl;
+			file << setw(107) << setfill('-') << "" << endl;
+			i++;
+		}
+	}
+	file.close();
+	return i;
+}
+
+int Supplier::FindAdm(list<Supplier> lst, char* str)
+{
+	int i = 0;
+	list<Supplier>::iterator p;
+	ofstream file("Supp_table_f.txt", ios_base::trunc);
+	file << setw(101) << setfill('-') << "" << endl;
+	file << setfill(' ') << "|" << setw(15) << "Поставщик" << setw(8) << "|" << setw(13) << "ФИО" << setw(10) << "|" << setw(17) << "Контактный" << setw(7) << "|" << setw(17) << "Email" << setw(13) << "|" << endl;
+	file << setfill(' ') << "|" << setw(23) << "|" << setw(23) << "|" << setw(16) << "телефон" << setw(8) << "|" << setw(30) << "|" << endl;
+	file << setw(101) << setfill('-') << "" << endl;
+	for (p = lst.begin(); p != lst.end(); p++) {
+		if (strcmp(str, p->nameorg) == 0) {
+			file << setfill(' ') << "|" << left << setw(22) << p->Get_nameorg() << right << "|" << left << setw(22) << p->GetF() << right << "|" << left << setw(23) << p->Get_phone() << right << "|" << left << setw(29) << p->Get_email() << right << "|" << endl;
+			file << setfill(' ') << "|" << setw(23) << "|" << left << setw(22) << p->GetI() << right << "|" << setw(24) << "|" << setw(30) << "|" << endl;
+			file << setfill(' ') << "|" << setw(23) << "|" << left << setw(22) << p->GetO() << right << "|" << setw(24) << "|" << setw(30) << "|" << endl;
+			file << setw(101) << setfill('-') << "" << endl;
+			i++;
+		}
 	}
 	file.close();
 	return i;
@@ -350,6 +433,25 @@ void mailWorking(void* newS) {
 							strcpy_s(p, "1");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							supp.WriteTable(lsupp);
+							supp.WriteTableAdm(lsupp);
+							strcpy_s(p, "1");
+							send((SOCKET)newS, p, sizeof(p), 0);
+							supp.Sorting(lsupp);
+							ifstream file("Supp_table_adm.txt");
+							while (!file.eof()) {
+								cout << "Hi, babe" << endl;
+								k[0] = '\0';
+								file.getline(k, 256, '\n');
+								m[0] = '\0';
+								strcpy_s(m, "конец");
+								if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
+								else send((SOCKET)newS, k, sizeof(k), 0);
+								cout << k << endl;
+							}
+							k[0] = '\0';
+							cout << "вышел из цикла" << endl;
+							file.close();
+							m[0] = '\0';
 							/*cout<<supp(3, lsupp).GetF()<<endl;
 							cout << "fff" << endl;*/
 							break;
@@ -357,6 +459,30 @@ void mailWorking(void* newS) {
 						case 2: {
 							strcpy_s(p, "2");
 							send((SOCKET)newS, p, sizeof(p), 0);
+							m[0] = '\0'; int tt;
+							recv((SOCKET)newS, m, sizeof(m), 0);
+							tt = supp.FindAdm(lsupp, m);
+							if (tt == 0) {
+								m[0] = '\0';
+								strcpy_s(m, "Такой поставщик не был зарегистрирован!\n");
+								send((SOCKET)newS, m, sizeof(m), 0);
+							}
+							else {
+								ifstream file("Supp_table_f.txt");
+								while (!file.eof()) {
+									//cout << "Hi, babe" << endl;
+									k[0] = '\0';
+									file.getline(k, 256, '\n');
+									m[0] = '\0';
+									strcpy_s(m, "конец");
+									if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
+									else send((SOCKET)newS, k, sizeof(k), 0);
+									//cout << k << endl;
+								}
+								k[0] = '\0';
+							}
+							m[0] = '\0';
+							k[0] = '\0';
 							break;
 						}
 						case 3: {
@@ -776,11 +902,64 @@ void mailWorking(void* newS) {
 						case 3: {
 							strcpy_s(p, "3");
 							send((SOCKET)newS, p, sizeof(p), 0);
+							float a, b;
+							k[0] = '\0'; int tt;
+							recv((SOCKET)newS, k, sizeof(k), 0);
+							a = stof(k);
+							m[0] = '\0';
+							recv((SOCKET)newS, m, sizeof(m), 0);
+							b = stof(m);
+							tt = supp.Filtr_2(lsupp, a,b);
+							if (tt == 0) {
+								m[0] = '\0';
+								strcpy_s(m, "Такие поставщики не найдены!\n");
+								send((SOCKET)newS, m, sizeof(m), 0);
+							}
+							else {
+								ifstream file("Supp_table_f2.txt");
+								while (!file.eof()) {
+									//cout << "Hi, babe" << endl;
+									k[0] = '\0';
+									file.getline(k, 256, '\n');
+									m[0] = '\0';
+									strcpy_s(m, "конец");
+									if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
+									else send((SOCKET)newS, k, sizeof(k), 0);
+									//cout << k << endl;
+								}
+								k[0] = '\0';
+							}
+							m[0] = '\0';
+							k[0] = '\0';
 							break;
 						}
 						case 4: {
 							strcpy_s(p, "4");
 							send((SOCKET)newS, p, sizeof(p), 0);
+							m[0] = '\0'; int tt;
+							recv((SOCKET)newS, m, sizeof(m), 0);
+							tt = supp.Find(lsupp, m);
+							if (tt == 0) {
+								m[0] = '\0';
+								strcpy_s(m, "Такой поставщик не был зарегистрирован!\n");
+								send((SOCKET)newS, m, sizeof(m), 0);
+							}
+							else {
+								ifstream file("Supp_table_f.txt");
+								while (!file.eof()) {
+									//cout << "Hi, babe" << endl;
+									k[0] = '\0';
+									file.getline(k, 256, '\n');
+									m[0] = '\0';
+									strcpy_s(m, "конец");
+									if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
+									else send((SOCKET)newS, k, sizeof(k), 0);
+									//cout << k << endl;
+								}
+								k[0] = '\0';
+							}
+							m[0] = '\0';
+							k[0] = '\0';
 							break;
 						}
 						case 5: {

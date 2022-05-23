@@ -1,97 +1,91 @@
 ﻿#define _AFXDLL 
 #include <iostream>
+#include <cstring>
 #include <afx.h> 
 #include <winsock2.h>
 #include <process.h>
 #include <string>
 #include <fstream>
 #include <list>
-#include<iomanip>
+#include <iomanip>
+#include <time.h>
 
 using namespace std;
 
-CFile f;                 //???
+CFile f;
 CFileException ex;
-//+++
+
 class Contract {
 	char client[50];     //заказчик
 	char supplier[50];   //поставщик
 	char contr_num[50];  //номер договора
 	int status;          //статус договора
 public:
-	Contract() {
+	Contract() {    //конструктор по умолчанию
 		strcpy_s(client, "АвтоМир");
 		strcpy_s(supplier, "-");
 		strcpy_s(contr_num, "-");
 		status = 0;
-	}
-	//void SetClient(char* str) { strcpy_s(client, str); }
+	} 
+	//сеттеры
 	void SetSupplier(char* str) { strcpy_s(supplier, str); }
 	void SetContrNum(char* str) { strcpy_s(contr_num, str); }
 	void SetStatus(int a) { status = a; }
+	//геттеры
 	int GetStatus() { return status; }
-}; //информация и методы, связанные с контрактами для обеих сторон,
-//этот класс будет включен в виде списка в класс админ/салон и класс поставщик
+	char* GetClient() { return client; }
+	char* GetSupplier() { return supplier; }
+	char* GetContrNum() { return contr_num; }
+	//дружественные функции для работы по заключению и считыванию договоров
+	friend void WriteContracts(list<Contract> lst);
+	friend void ReadContract(list<Contract>& lst);
+	friend void TableContracts(list<Contract> lst);
+	friend int FindContract(list<Contract> lst, char* str);
+}; 
 
 class Authorization {
 protected:
-	char login[50];
+	char login[50]; 
 	char password[50];
 public:
 	Authorization() {
 		strcpy_s(login, "-");
 		strcpy_s(password, "-");
 	}
-	/*Authorization(const Authorization& obj) {
-		strcpy_s(this->login,obj.login);
-		strcpy_s(this->password, obj.password);
-	}*/
+	//сеттеры
 	void SetLogin(char* str) { strcpy_s(login, str); }
 	void SetPassword(char* str) { strcpy_s(password, str); }
+	//геттеры
 	char* GetLogin() { return login; }
 	char* GetPassword() { return password; }
-	int CheckLogin(); //возвращает 1, если всё правильно, 2 - если неправильно (к примеру) //проверка правильности логина
-	int CheckPassword(); //проверка правильности пароля
-	void ChangeLogin(); //изменить логин
-	void ChangePassword(); //изменить пароль
 };
 
 class CarShowroom: public Authorization {
 protected:
-	//добавить информации об автосалоне
 	char name[50]; //название автосалона
-	char F[50]; //фамилия сотрудника автосалона
-	char I[50]; //имя сотрудника
-	char O[50]; //отчество
+	char F[50];    //фамилия сотрудника автосалона
+	char I[50];    //имя сотрудника
+	char O[50];    //отчество
 public:
 	CarShowroom() {
-		strcpy_s(name, "-");
-		strcpy_s(F, "-");
-		strcpy_s(I, "-");
-		strcpy_s(O, "-");
+		strcpy_s(name, "АвтоМир");
+		strcpy_s(F, "Городная");
+		strcpy_s(I, "Юлия");
+		strcpy_s(O, "Сергеевна");
 	}
-	/*CarShowroom(const CarShowroom& obj) {
-		strcpy_s(this->name, obj.name);
-		strcpy_s(this->F, obj.F);
-		strcpy_s(this->I, obj.I);
-		strcpy_s(this->O, obj.O);
-	}*/
+	//сеттеры
 	void SetF(char* str) { strcpy_s(F, str); } //ввести фамилию
 	void SetI(char* str) { strcpy_s(I, str); } //ввести имя
 	void SetO(char* str) { strcpy_s(O, str); }; //ввести отчество
+	//геттеры
 	char* GetF() { return F; }
 	char* GetI() { return I; }
 	char* GetO() { return O; }
 };
 
-class Admin :public CarShowroom {
-public:
-	//методы администратора
-};
-
 class Expert : public CarShowroom {
 	char pos[50]; //должность
-	int exp; //опыт
+	int exp;      //опыт
 public:
 	Expert() {
 		strcpy_s(F, "-");
@@ -100,14 +94,14 @@ public:
 		strcpy_s(pos, "-");
 		exp = 0;
 	}
-	//методы эксперта
-	friend bool operator<(Expert e1, Expert e2);
+	friend bool operator<(Expert e1, Expert e2); //перегрузка, необходимая для работы со списками STL
+	//геттеры и сеттеры
 	void SetPos(char* str) { strcpy_s(pos, str); }
 	char* GetPos() { return pos; }
 	void SetExp(int a) { exp = a; }
 	int GetExp() { return exp; }
-	void WriteFile(list<Expert> lst);
-	void WriteTable(list<Expert> lst);
+	void WriteFile(list<Expert> lst); //запись в файл для последующего считывания
+	void WriteTable(list<Expert> lst); //запись в файл для псоледующего просмотра/вывода на экран
 	friend void MakeExpList(list<Expert> &lst);
 	void Sorting(list<Expert> lst) {
 		lst.sort();
@@ -145,7 +139,15 @@ public:
 	}
 };
 
+class Mistake : public std::exception //класс исключения
+{
+public:
+	virtual const char* what() const throw()
+	{
+		return "Вызвано исключение преднамеренной проверки";
+	}
 
+} file_mistake;
 
 void Expert::WriteFile(list<Expert> lst)
 {
@@ -192,16 +194,13 @@ bool operator<(Expert e1, Expert e2) {
 class Supplier :public CarShowroom {
 	char nameorg[50]; //название организации
 	char country[50]; //название страны локации поставщика
-	char city[50]; //название города локации поставщика
-	char phone[50]; //контактный телефон
-	char email[50]; //электронная почта
-	int contracts; //количество действующих договоров
-	//список договоров
-	//список заявок
+	char city[50];    //название города локации поставщика
+	char phone[50];   //контактный телефон
+	char email[50];    //электронная почта
+	int contracts;     //количество действующих договоров
 	float min_price; //цена минимальной разовой закупки
-	      //договор с нашим автосалоном
 public:
-	Contract c;
+	Contract c;     //договор с нашим автосалоном
 	Supplier() {
 		strcpy_s(nameorg, "-");
 		strcpy_s(country, "-");
@@ -211,18 +210,6 @@ public:
 		contracts = 0;
 		min_price = 0;
 	}
-	/*Supplier(const Supplier& obj) {
-		strcpy_s(this->nameorg, obj.nameorg);
-		strcpy_s(this->country, obj.country);
-		strcpy_s(this->city, obj.city);
-		strcpy_s(this->F, obj.F);
-		strcpy_s(this->I, obj.I);
-		strcpy_s(this->O, obj.O);
-		strcpy_s(this->phone, obj.phone);
-		strcpy_s(this->email, obj.email);
-		this->contracts = obj.contracts;
-		this->min_price = obj.min_price;
-	}*/
 	friend bool operator<(Supplier s1, Supplier s2);
 	friend void MakeSuppList(list<Supplier>& lst);
 	friend void MakePotSupp(list<Supplier>& lst, list<Supplier> lst1);
@@ -237,6 +224,7 @@ public:
 			counter++;
 		}
 	}
+	//сеттеры
 	void Set_nameorg(char* str) { strcpy_s(nameorg, str); }
 	void Set_country(char* str) { strcpy_s(country,str); }
 	void Set_city(char* str) { strcpy_s(city, str); }
@@ -244,6 +232,7 @@ public:
 	void Set_email(char* str){ strcpy_s(email, str); }
 	void Set_contracts(int a) { contracts = a; }
 	void Set_min_price(float a) { min_price = a; }
+	//геттеры
 	char* Get_nameorg() { return nameorg; }
 	char* Get_country() { return country; }
 	char* Get_city() { return city; }
@@ -251,12 +240,16 @@ public:
 	char* Get_email() { return email; }
 	int Get_contracts() { return contracts; }
 	float Get_min_price() { return min_price; }
+	//работа с файлами
 	void WriteFile(list<Supplier> lst);
 	void WriteTable(list <Supplier> lst);
 	void WriteTableAdm(list<Supplier> lst);
+	//сортировка
 	void Sorting(list<Supplier> lst);
+	//фильтрации
 	int Filtr_1(list<Supplier>lst, char* str);
 	int Filtr_2(list<Supplier> lst, float a, float b);
+	//методы поиска
 	int Find(list<Supplier> lst, char* str);
 	int FindAdm(list<Supplier> lst, char* str);
 };
@@ -418,10 +411,6 @@ bool operator<(Supplier s1, Supplier s2) {
 	return strcmp(s1.nameorg, s2.nameorg) < 0;
 }
 
-class Request{}; //инфа и методы о заявках для обеих сторон
-
-class Method{}; //поля и методы, связанные с методом ранга, включён в класс эксперты
-
 void MakeExpList(list<Expert> &lst) {
 	ifstream file("Experts.txt");
 	ifstream file1("Exp_log_passw.txt");
@@ -456,7 +445,6 @@ void MakeExpList(list<Expert> &lst) {
 	}
 	file.close();
 	file1.close();
-	
 }
 
 void MakeSuppList(list<Supplier>& lst) {
@@ -464,10 +452,16 @@ void MakeSuppList(list<Supplier>& lst) {
 	ifstream f("Supp_log_passw.txt");
 	char str[50];
 	Supplier sup;
-	if (!file.is_open()||file.peek()==EOF) { 
-	cout << "Файл с данными поставщиков пуст или не может быть открыт!\n" << endl;
-}
-else {
+	try
+	{
+		if (!file.is_open() || file.peek() == EOF)
+			throw file_mistake;
+	}
+	catch (Mistake ex)
+	{
+		std::cerr << "Внимание, файл с данными о поставщиках не может быть открыт!" << std::endl;
+		return;
+	}
 	for (int i = 0;; i++) 
 	{
 		file.getline(sup.nameorg, 50, ';');
@@ -486,11 +480,9 @@ else {
 		file.getline(str, 50, ';');
 		sup.Set_min_price(stof(str));
 		str[0] = '\0';
-		//
 		file.getline(str, 50, '\n');
 		sup.c.SetStatus(atoi(str));
 		str[0] = '\0';
-		//
 		f.getline(str, 50, ' ');
 		for (int i = 0; i < strlen(str); i++) {
 			str[i] = (char)((int)str[i] - 3);
@@ -503,10 +495,9 @@ else {
 		}
 		strcpy_s(sup.password, str);
 		str[0] = '\0';
-		cout << "helllo" << endl;
 		lst.push_back(sup);
 	}
-}
+
 file.close();
 f.close();
 }
@@ -522,90 +513,120 @@ void MakePotSupp(list<Supplier>& lst,list<Supplier> lst1) {
 		}
 	}
 }
-void Make1Table(int arr[50][50], int a, int b) { //a - supps; b- experts
+
+template<typename T>
+void MaxElement(const T* arr, int& maxel, T& maxvalue, int a) { // шаблонная функция для поиска максимального элемента в массиве
+	for (int i = 0; i < a; i++) {
+		if (arr[i] > maxvalue) {
+			maxvalue = arr[i];
+			maxel = i;
+		}
+	}
+	cout << "Номер элемента с наибольшим весом: " << maxel << endl;
+	cout << "Наибольший вес: " << maxvalue;
+}
+
+void Make1Table(int arr[50][50], int a, int b) { //a - поставщики; b- эксперты
+	ofstream file("Method_Res.txt", ios_base::trunc);
+	file << setw(15)<<" " << "Матрица оценок экспертов" << endl<<endl;
 	//шапка таблицы
-	cout << "|" << setw(8) << setfill('-')<<"|";
+	file << "|" << setw(8) << setfill('-')<<"|";
 	for (int i = 0; i < a; i++) {
-		cout << setw(5)<<"|";
+		file << setw(5)<<"|";
 	}
-	cout << endl;
-	cout << "|" << setw(6) << setfill(' ') << "Zi/Эi" << setw(2) << "|";
+	file << endl;
+	file << "|" << setw(6) << setfill(' ') << "Zi/Эi" << setw(2) << "|";
 	for (int i = 0; i < a; i++) {
-		cout << " Z" << i + 1 << " |";
+		file << " Z" << i + 1 << " |";
 	}
-	cout << endl;
-	cout << "|" << setw(8) << setfill('-') << "|";
+	file << endl;
+	file << "|" << setw(8) << setfill('-') << "|";
 	for (int i = 0; i < a; i++) {
-		cout << setw(5) << "|";
+		file << setw(5) << "|";
 	}
-	cout << endl;
+	file << endl;
     //
 	for (int i = 0; i < b; i++) {
-		cout << "|" << setw(4) << setfill(' ') << "Э" << i + 1 << setw(3) << "|";
+		file << "|" << setw(4) << setfill(' ') << "Э" << i + 1 << setw(3) << "|";
 		for (int j = 0; j < a; j++) {
-			cout << setw(3) << arr[i][j] << setw(2) << "|";
+			file << setw(3) << arr[i][j] << setw(2) << "|";
 		}
-		cout << endl;
-		cout << "|" << setw(8) << setfill('-') << "|";
+		file << endl;
+		file << "|" << setw(8) << setfill('-') << "|";
 		for (int i = 0; i < a; i++) {
-			cout << setw(5) << "|";
+			file << setw(5) << "|";
 		}
-		cout << endl;
+		file << endl;
 	}
-	cout << endl;
+	file << endl;
+	file.close();
 }
 
 void Make2Table(int arr[50][50], int a, int b) {//a - supps; b- experts
 	//шапка таблицы
-	cout << "|" << setw(8) << setfill('-') << "|";
+	ofstream file("Method_Res.txt", ios_base::app);
+	file << setw(15) <<" " << "Матрица нормированных оценок" << endl<<endl;
+	file << "|" << setw(8) << setfill('-') << "|";
 	for (int i = 0; i < a; i++) {
-		cout << setw(8) << "|";
+		file << setw(8) << "|";
 	}
-	cout << endl;
-	cout << "|" << setw(6) << setfill(' ') << "Zi/Эi" << setw(2) << "|";
+	file << endl;
+	file << "|" << setw(6) << setfill(' ') << "Zi/Эi" << setw(2) << "|";
 	for (int i = 0; i < a; i++) {
-		cout << "   Z" << i + 1 << "  |";
+		file << "   Z" << i + 1 << "  |";
 	}
-	cout << endl;
-	cout << "|" << setw(8) << setfill('-') << "|";
+	file << endl;
+	file << "|" << setw(8) << setfill('-') << "|";
 	for (int i = 0; i < a; i++) {
-		cout << setw(8) << "|";
+		file << setw(8) << "|";
 	}
-	cout << endl;
-	//
+	file << endl;
 	int total;
 	for (int i = 0; i < b; i++) {
 		total = 0;
 		for (int m = 0; m < a; m++) {
 			total = total + arr[i][m];
 		}
-		cout << "|" << setw(4) << setfill(' ') << "Э" << i + 1 << setw(3) << "|";
+		file << "|" << setw(4) << setfill(' ') << "Э" << i + 1 << setw(3) << "|";
 		for (int j = 0; j < a; j++) {
-			cout << setw(3) << arr[i][j]<<"/"<<setw(2)<<total << setw(2) << "|";
+			file << setw(3) << arr[i][j]<<"/"<<setw(2)<<total << setw(2) << "|";
 		}
-		cout << endl;
-		cout << "|" << setw(8) << setfill('-') << "|";
+		file << endl;
+		file << "|" << setw(8) << setfill('-') << "|";
 		for (int i = 0; i < a; i++) {
-			cout << setw(8) << "|";
+			file << setw(8) << "|";
 		}
-		cout << endl;
+		file << endl;
 	}
-	cout << endl;
+	file << endl;
+	file.close();
 }
 
-void Make3Table(int arr[50][50], int a, int b) {
+int Make3Table(int arr[50][50], int a, int b) {
 	float array[50][50];
 	float weight[100];
 	int total;
-	for (int i = 0; i < b; i++) {   //вычислили дробные значения для каждой штуки
+	int maxel = 0;
+	float maxvalue = 0;
+	ofstream file("Method_Res.txt", ios_base::app);
+	file << setw(15) <<" " << "Итоговые веса целей" << endl<<endl;
+	for (int i = 0; i < b; i++) {   //вычисление нормированных оценок
 		total = 0;
 		for (int m = 0; m < a; m++) {
 			total = total + arr[i][m];
 		}
 		for (int m = 0; m < a; m++) {
-			array[i][m] = arr[i][m];
-			array[i][m] = array[i][m] / total;
-			cout << "посчитали дроби = " << array[i][m] << endl;
+			try {
+				array[i][m] = arr[i][m];
+				if (total == 0) throw 1;
+				array[i][m] = array[i][m] / total;
+				cout << "посчитали дроби = " << array[i][m] << endl;
+			}
+			catch (int) {
+				cout << "Произошло деление на ноль.\nРезультаты расчётов не будут верны.\nВыполните работу по оценке поставщиков снова." << endl;
+				m--;
+				total = 1;
+			}
 		}
 	}
 	for (int i = 0; i < a; i++) { //цикл прохождения по поставщикам
@@ -616,8 +637,26 @@ void Make3Table(int arr[50][50], int a, int b) {
 		weight[i] = weight[i] / b;
 	}
 	for (int i = 0; i < a; i++) {
-		cout<<"Итоговый вес цели (Поставщик) №"<<i+1<<" = "<<setprecision(3)<<fixed << weight[i] << endl;
+		file<<"Итоговый вес цели (Поставщик) №"<<i+1<<" = "<<setprecision(3)<<fixed << weight[i] << endl;
 	}
+	file << endl;
+	MaxElement(weight, maxel, maxvalue, a);
+	file << "Наибольший вес: " << fixed << setprecision(3) << maxvalue << " (" << "Поставщик №" << maxel + 1 << ")" << endl;
+	file.close();
+	return maxel;
+}
+
+void Make4Table(list<Supplier> lst, int a) {
+	list<Supplier>::iterator p;
+	int b = 0;
+	ofstream file("Method_Res.txt", ios_base::app);
+	for (p = lst.begin(); p != lst.end(); p++) {
+		if (b == a) {
+			file << "\nСамый подходящий Поставщик согласно отчёту экспертов:   " <<p->Get_nameorg()<< endl;
+		}
+		b++;
+	}
+	file.close();
 }
 
 void CheckIn_Adm(char* str1, char* str2) {
@@ -632,43 +671,118 @@ void CheckIn_Adm(char* str1, char* str2) {
 	f.close();
 }
 
+void WriteContracts(list<Contract> lst) {
+	ofstream file("Contracts.txt", ios_base::trunc);
+	list<Contract>::iterator p;
+	for (p = lst.begin(); p != lst.end(); p++) {
+		file << p->client << ";" << p->supplier << ";" << p->contr_num << "\n";
+	}
+	file << "*;";
+	file.close();
+}
+
+void TableContracts(list<Contract> lst) {
+	ofstream file("ContractsT.txt", ios_base::trunc);
+	list<Contract>::iterator p;
+	file << "|" << setw(10) << setfill('-')  << "|" << setw(50) << "|" << setw(15) << "|" << endl;
+	file << "|" << setfill(' ') << setw(9) << "Автосалон" << "|" << setw(29) << "Поставщик" << setw(21) << "|" << setw(13) << "Договор №" << setw(2) << "|" << endl;
+	file << "|" << setw(10) << setfill('-') << "|" << setw(50) << "|" << setw(15) << "|" << endl;
+	for (p = lst.begin(); p != lst.end(); p++) {
+		file <<setfill(' ') << "|" << left << setw(9) << p->client << right << "|" << setw(49) << left << p->supplier << right << "|" << setw(14) << left << p->contr_num << right << "|" << endl;
+		file << "|" << setw(10) << setfill('-') << "|" << setw(50) << "|" << setw(15) << "|" << endl;
+	}
+	file.close();
+}
+
+int FindContract(list<Contract> lst,char* str) {
+	int i = 0;
+	ofstream file("ContractsTF.txt", ios_base::trunc);
+	list<Contract>::iterator p;
+	file << "|" << setw(10) << setfill('-') << "|" << setw(50) << "|" << setw(15) << "|" << endl;
+	file << "|" << setfill(' ') << setw(9) << "Автосалон" << "|" << setw(29) << "Поставщик" << setw(21) << "|" << setw(13) << "Договор №" << setw(2) << "|" << endl;
+	file << "|" << setw(10) << setfill('-') << "|" << setw(50) << "|" << setw(15) << "|" << endl;
+	for (p = lst.begin(); p != lst.end(); p++) {
+		if (strcmp(str, p->supplier)==0) {
+			file << setfill(' ') << "|" << left << setw(9) << p->client << right << "|" << setw(49) << left << p->supplier << right << "|" << setw(14) << left << p->contr_num << right << "|" << endl;
+			file << "|" << setw(10) << setfill('-') << "|" << setw(50) << "|" << setw(15) << "|" << endl;
+			i++;
+		}
+	}
+	file.close();
+	return i;
+}
+
+void FinalContract(list<Contract> lst, list<Supplier> l, char* str) {
+	time_t t = time(NULL);
+	tm tm; 
+	localtime_s(&tm,& t);
+	ofstream file("FinalContract.txt", ios_base::trunc);
+	list <Contract>::iterator c;
+	for (c = lst.begin(); c != lst.end(); c++) {
+		if (strcmp(str, c->GetSupplier()) == 0) break;
+	}
+	list<Supplier>::iterator s;
+	for (s = l.begin(); s != l.end(); s++) {
+		if (strcmp(str, s->Get_nameorg()) == 0) break;
+	}
+	file << setw(38) << "ДОГОВОР ПОСТАВКИ №" << c->GetContrNum() << endl << endl << endl;
+	file << left  <<"г. Минск" <<right << setfill(' ') <<setw(50) << " " << setfill('0') << setw(2) << tm.tm_mday << '.' << setw(2) << tm.tm_mon + 1 << '.' << setw(4) << tm.tm_year + 1900 << '\n'<<endl;
+	file << setfill(' ') << setw(25) << left << s->Get_nameorg() << setw(9) << "в лице" << setw(17) << s->GetF() << setw(17) << s->GetI() << endl;
+	file<<setw(20) << s->GetO() << ",";
+	file << "действующего на основании  Устава, именуемый  в" << endl;
+	file << "дальнейшем   Поставщик,  с одной стороны, и Автомир в лице Городная " << endl;
+	file << "Ю.С., именуемый в дальнейшем Покупатель, с другой стороны, именуемые" << endl;
+	file<<"в дальнейшем Стороны, заключили настоящий договор." << endl;
+	file.close();
+}
+
+void ReadContract(list<Contract>& lst) {
+	Contract c;
+	ifstream file("Contracts.txt");
+	if (!file.is_open() || (file.peek() == EOF)) {
+		cout << "Файл с данными о контрактах пуст или не может быть открыт!\n" << endl;
+	}
+	else {
+		for (int i = 0;; i++) {
+			file.getline(c.client, 50, ';');
+			if (strcmp(c.client, "*") == 0) { break; }
+			file.getline(c.supplier, 50, ';');
+			file.getline(c.contr_num, 50, '\n');
+			lst.push_back(c);
+		}
+	}
+	file.close();
+}
 
 void mailWorking(void* newS) {
 	Supplier supp; 
 	Expert expert;
-	list<Expert> lexpert;
+	list<Expert> lexpert;    //список, хранящий данные действующих экспертов
 	list<Expert>::iterator pexpert;
-	list<Supplier> lsupp;   //все поставщики
-	//+++
-	list<Supplier> poten;    //только потенциальные (статус - 0)
-	list<Supplier> l1;      //админ отправил им заявку (статус - 1)
-	list<Supplier> l2;      //с ними заключён договор (статус - 2)
-	list<Supplier> l3;      //поставщик хочет расторгнуть (статус - 3)
-	list<Supplier> l4;      //админ хочет расторгнуть договор (статус - 4)
-	//+++
+	list<Supplier> lsupp;   //список, хранящий информацию обо всех зарегистрированных поставщиках
+	list<Supplier> poten;   //потенциальные поставщики (статус = 0)
+	list<Supplier> l1;      //поставщики, которым отправил заявку администратор (статус = 1)
+	list<Supplier> l2;      //поставщики, с которыми заключён договор (статус = 2)
+	list<Supplier> l3;      //поставщики, желающие расторгнуть договор (статус = 3)
+	list<Supplier> l4;      //поставщики, с которыми администратор желает расторгнуть договор (статус = 4)
 	list<Supplier> ::iterator psupp;
-	int c, c1 = 0, c2 = 0, c3 = 0;
+	list<Contract> contr;
+	list<Contract>::iterator pcontr;
+	ReadContract(contr);
+	int c, c1 = 0, c2 = 0, c3 = 0,aaa=8;
 	int flag = 0;
-	char p[500], com[500], k[500], m[500];
+	char p[500], com[500], k[500], m[500],result[500];
 	com[0] = '\0'; p[0] = '\0'; k[0] = '\0'; m[0] = '\0';
-	cout << "*-----Сервер готов к работе-----*\n";
+	cout << "*---Сервер готов к работе---*\n\n";
 	MakeSuppList(lsupp);
-	cout << "hello1" << endl;
 	MakeExpList(lexpert);
-	cout<<"hello" << endl;
 	for (psupp = lsupp.begin(); psupp != lsupp.end();psupp++) {
-		if (psupp->c.GetStatus() == 0) poten.push_back(*psupp);
-		if (psupp->c.GetStatus() == 1) l1.push_back(*psupp);
+		if (psupp->c.GetStatus() == 0) poten.push_back(*psupp); //заполнение списков поставщиков с разными статусами договора
+		if (psupp->c.GetStatus() == 1) l1.push_back(*psupp);   
 		if (psupp->c.GetStatus() == 2) l2.push_back(*psupp);
 		if (psupp->c.GetStatus() == 3) l3.push_back(*psupp);
 		if (psupp->c.GetStatus() == 4) l4.push_back(*psupp);
 	}
-	cout << lsupp.size() << endl;
-	cout << poten.size() << endl;
-	cout << l1.size() << endl;
-	cout << l2.size() << endl;
-	cout << l3.size() << endl;
-	cout << l4.size() << endl;
 	while (1) 
 	{
 		strcpy_s(p, "ГЛАВНОЕ МЕНЮ:\n");
@@ -718,7 +832,7 @@ void mailWorking(void* newS) {
 					send((SOCKET)newS, p, sizeof(p), 0);
 				}
 			}
-			if (choice == 2) {
+			if (choice == 2) {   //регистрация
 				k[0] = '\0';
 				m[0] = '\0';
 				recv((SOCKET)newS, k, sizeof(k), 0); //получили логин
@@ -732,49 +846,41 @@ void mailWorking(void* newS) {
 				recv((SOCKET)newS, m, sizeof(m), 0);
 				c1 = atoi(m);
 				switch (c1) {
-				case 1: {
+				case 1: {               //работа администратора с поставщиками
 					strcpy_s(p, "1"); //дали знать клиентскому приложению, с каким кейсом работаем
 					send((SOCKET)newS, p, sizeof(p), 0);
 					while (c2 != 5) {
-						strcpy_s(p, "РАБОТА С ПОСТАВЩИКАМИ:\n 1. Просмотреть список имеющихся поставщиков.\n 2. Найти информацию о конкретном поставщике.\n 3. Заключить договор.\n 4. Расторгнуть договор. \n 5. Вернуться в меню администратора.\n");
+						strcpy_s(p, "РАБОТА С ПОСТАВЩИКАМИ:\n 1. Просмотреть полный список поставщиков.\n 2. Найти информацию о конкретном поставщике.\n 3. Заключить договор.\n 4. Расторгнуть договор. \n 5. Вернуться в меню администратора.\n");
 						send((SOCKET)newS, p, sizeof(p), 0);
 						recv((SOCKET)newS, m, sizeof(m), 0);
 						c2 = atoi(m);
 						switch (c2) {
-						case 1: {
+						case 1: {               //просмотр полного списка поставщиков
 							strcpy_s(p, "1");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							supp.WriteTable(lsupp);
 							supp.WriteTableAdm(lsupp);
-							strcpy_s(p, "1");
-							send((SOCKET)newS, p, sizeof(p), 0);
 							supp.Sorting(lsupp);
-							ifstream file("Supp_table_adm.txt");
-							while (!file.eof()) {
-								cout << "Hi, babe" << endl;
+							if (lsupp.size() == 0) {
+								send((SOCKET)newS, "13", sizeof("13"), 0);
+							}
+							else {
+								ifstream file("Supp_table_adm.txt");
+								while (!file.eof()) {
+									k[0] = '\0';
+									file.getline(k, 256, '\n');
+									m[0] = '\0';
+									strcpy_s(m, "конец");
+									if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
+									else send((SOCKET)newS, k, sizeof(k), 0);
+								}
 								k[0] = '\0';
-								file.getline(k, 256, '\n');
+								file.close();
 								m[0] = '\0';
-								strcpy_s(m, "конец");
-								if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
-								else send((SOCKET)newS, k, sizeof(k), 0);
-								cout << k << endl;
 							}
-							k[0] = '\0';
-							cout << "вышел из цикла" << endl;
-							file.close();
-							m[0] = '\0';
-							int u = 0;
-							for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
-								u++;
-								if (u == 2) { psupp->c.SetStatus(u); }
-								cout << psupp->c.GetStatus() << endl;
-							}
-							/*cout<<supp(3, lsupp).GetF()<<endl;
-							cout << "fff" << endl;*/
 							break;
 						}
-						case 2: {
+						case 2: {                //поиск поставщика администратором
 							strcpy_s(p, "2");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							m[0] = '\0'; int tt;
@@ -788,14 +894,12 @@ void mailWorking(void* newS) {
 							else {
 								ifstream file("Supp_table_f.txt");
 								while (!file.eof()) {
-									//cout << "Hi, babe" << endl;
 									k[0] = '\0';
 									file.getline(k, 256, '\n');
 									m[0] = '\0';
 									strcpy_s(m, "конец");
 									if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
 									else send((SOCKET)newS, k, sizeof(k), 0);
-									//cout << k << endl;
 								}
 								k[0] = '\0';
 							}
@@ -803,13 +907,24 @@ void mailWorking(void* newS) {
 							k[0] = '\0';
 							break;
 						}
-						case 3: {
+						case 3: {              //отправление администратором заявки на заключение договора
 							strcpy_s(p, "3");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							k[0] = '\0';
 							m[0] = '\0';
+							ifstream file("Method_Res.txt");
+							while (!file.eof()) {
+								k[0] = '\0';
+								file.getline(k, 256, '\n');
+								m[0] = '\0';
+								strcpy_s(m, "конец");
+								if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
+								else send((SOCKET)newS, k, sizeof(k), 0);
+							}
+							k[0] = '\0';
+							file.close();
+							m[0] = '\0';
 							strcpy_s(k, "g");
-							
 								recv((SOCKET)newS, m, sizeof(m), 0);
 								int o = 0;
 								for (psupp = poten.begin(); psupp != poten.end(); psupp++) {
@@ -824,41 +939,61 @@ void mailWorking(void* newS) {
 										if (strcmp(m, psupp->Get_nameorg()) == 0) { psupp->c.SetStatus(1); break; }
 									}
 									supp.WriteFile(lsupp);
-									cout << lsupp.size() << endl;
-									cout << poten.size() << endl;
-									cout << l1.size()<<endl;
-									
 								}
-							
-							
-							//+++
-							//for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
-							//	if (psupp->c.GetStatus() == 0) poten.push_back(*psupp);
-							//}
-							//cout << poten.size() << endl;
-							//cout << "Введите название организации:" << endl;
-							//m[0] = '\0';
-							//cin.getline(m, 50, '\n');
-							//for (psupp = poten.begin(); psupp != poten.end(); psupp++) {
-							//	if (strcmp(psupp->Get_nameorg(), m) == 0) {
-							//		psupp->c.SetStatus(1);
-							//		l1.push_back(*psupp); 
-							//		//poten.erase(psupp);
-							//	}
-							//}
-							//for (psupp = poten.begin(); psupp != poten.end(); psupp++) {
-							//	if (psupp->c.GetStatus() != 0) break;
-							//}
-							//poten.erase(psupp);
-							//cout << lsupp.size() << endl;
-							//cout << poten.size() << endl;
-							//cout << l1.size() << endl;
-							//+++
 							break;
 						}
 						case 4: {
 							strcpy_s(p, "4");
 							send((SOCKET)newS, p, sizeof(p), 0);
+							k[0] = '\0';
+							m[0] = '\0';
+							strcpy_s(k, "g");
+							recv((SOCKET)newS, m, sizeof(m), 0); //название организации
+							int o = 0;
+							for (psupp = l2.begin(); psupp != l2.end(); psupp++) {
+								if (strcmp(m, psupp->Get_nameorg()) == 0) { o=1; break; } //данный поставщик не инициировал расторжение договора
+							}
+							if (o == 0) {
+								for (psupp = l4.begin(); psupp != l4.end(); psupp++) {
+									if (strcmp(m, psupp->Get_nameorg()) == 0) { o = 2; break; } //данный поставщик уже инициировал расторжение договора
+								}
+							}
+							if (o == 0) send((SOCKET)newS, "t", sizeof("t"), 0);
+							else {
+								char bufer[500];
+								
+								if (o == 1) {                                    //отправление администратором заявки на расторжение договора
+									send((SOCKET)newS, "e", sizeof("e"), 0);
+									l3.push_back(*psupp);
+									l2.erase(psupp);
+									for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
+										if (strcmp(m, psupp->Get_nameorg()) == 0) { psupp->c.SetStatus(3); break; }
+									}
+								}
+								if (o == 2) {               //окончательное двустороннее расторжение договора
+									send((SOCKET)newS, "g", sizeof("g"), 0);
+									psupp->Set_contracts(psupp->Get_contracts() - 1);
+									poten.push_back(*psupp);
+									l4.erase(psupp);
+									for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
+										if (strcmp(m, psupp->Get_nameorg()) == 0) {
+											psupp->c.SetStatus(0);
+											psupp->Set_contracts(psupp->Get_contracts() - 1);
+											strcpy_s(bufer, psupp->Get_nameorg());
+											break;
+										}
+									}
+									for (pcontr = contr.begin(); pcontr != contr.end(); pcontr++) {
+										if (strcmp(pcontr->GetSupplier(), bufer) == 0) {
+											contr.erase(pcontr);
+											break;
+										}
+									}
+								}
+								supp.WriteFile(lsupp);
+								WriteContracts(contr);
+								TableContracts(contr);
+							}
 							break;
 						}
 						case 5: {
@@ -871,8 +1006,7 @@ void mailWorking(void* newS) {
 					c2 = 0;
 					break;
 				}
-				case 2: 
-				{
+				case 2: {           //работа с экспертами
 					strcpy_s(p, "2");
 					send((SOCKET)newS, p, sizeof(p), 0);
 					while (c2 != 5) {
@@ -881,7 +1015,7 @@ void mailWorking(void* newS) {
 						recv((SOCKET)newS, m, sizeof(m), 0);
 						c2 = atoi(m);
 						switch (c2) {
-						case 1: {
+						case 1: {              //просмотр информации об экспертах (администратором)
 							strcpy_s(p, "1");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							while (c3 != 3) {
@@ -890,7 +1024,7 @@ void mailWorking(void* newS) {
 								recv((SOCKET)newS, m, sizeof(m), 0);
 								c3 = atoi(m);
 								switch (c3) {
-								case 1: {
+								case 1: {                 //просмотр информации об экспертах в порядке убывания их стажа
 									strcpy_s(p, "1");
 									send((SOCKET)newS, p, sizeof(p), 0);
 									ifstream bf("Experts.txt");
@@ -915,7 +1049,7 @@ void mailWorking(void* newS) {
 									}
 									break;
 								}
-								case 2: {
+								case 2: {              //просмотреть информацию об экспертах с определённым стажем
 									strcpy_s(p, "2");
 									send((SOCKET)newS, p, sizeof(p), 0);
 									m[0] = '\0';
@@ -961,35 +1095,34 @@ void mailWorking(void* newS) {
 							c3 = 0;
 							break;
 						}
-						case 2: {
+						case 2: {                 //добавление нового эксперта
 							p[0] = '\0';
 							strcpy_s(p, "2");
 							send((SOCKET)newS, p, sizeof(p), 0);
-
-							//получение фамилии
+							//фамилия нового эксперта
 							com[0] = '\0';
 							recv((SOCKET)newS, com, sizeof(com), 0);
 							expert.SetF(com);
 							com[0] = '\0';
-							//получение имени эксперта
+							//имя нового эксперта
 							recv((SOCKET)newS, com, sizeof(com), 0);
 							expert.SetI(com);
 							com[0] = '\0';
-							//получение отчества эксперта
+							//отчество нового эксперта
 							recv((SOCKET)newS, com, sizeof(com), 0);
 							expert.SetO(com);
 							com[0] = '\0';
-							//получение отчества эксперта
+							//должность нового эксперта
 							recv((SOCKET)newS, com, sizeof(com), 0);
 							expert.SetPos(com);
 							com[0] = '\0';
-							//получение количество действующих контрактов
+							//стаж нового эксперта
 							recv((SOCKET)newS, com, sizeof(com), 0);
 							int d;
 							d = atoi(com);
 							expert.SetExp(d);
 							com[0] = '\0';
-							//получение логина
+							//логин нового эксперта
 							int ch = 0;
 							while (ch != -1) {
 								ch = 0;
@@ -1010,23 +1143,23 @@ void mailWorking(void* newS) {
 							}
 							expert.SetLogin(com);
 							com[0] = '\0';
-
-							//получение пароль
+							//пароль нового эксперта
 							recv((SOCKET)newS, com, sizeof(com), 0);
 							expert.SetPassword(com);
 							com[0] = '\0';
                             //добавление нового эксперта в список
 							lexpert.push_back(expert);
+							//перезапись файлов, связанных с экспертами
 							expert.WriteFile(lexpert);
 							expert.WriteTable(lexpert);
 							break;
 						}
-						case 3: {
+						case 3: {               //удаление экспертов
 							strcpy_s(p, "3");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							ifstream bf("Experts.txt");
 							if (bf.peek() == EOF) {
-								send((SOCKET)newS, "m", sizeof("m"), 0);
+								send((SOCKET)newS, "m", sizeof("m"), 0); //сообщаем клиенту, что эксперты ещё не были назначены
 							}
 							else {
 								send((SOCKET)newS, "n", sizeof("n"), 0);
@@ -1034,17 +1167,23 @@ void mailWorking(void* newS) {
 								m[0] = '\0';
 								recv((SOCKET)newS, m, sizeof(m), 0);
 								int flag = 0;
-								for (pexpert = lexpert.begin(); pexpert != lexpert.end(); pexpert++) {
+								for (pexpert = lexpert.begin(); pexpert != lexpert.end(); pexpert++) {   //ищем эксперта с заданной фамилией; удаляем, если находим
 									if (strcmp(pexpert->GetF(), m) == 0) {
 										lexpert.erase(pexpert);
 										flag++;
 										break;
 									}
 								}
-								if(flag==0) send((SOCKET)newS, "Эксперт с такой фамилией не был добавлен!\n", sizeof("Эксперт с такой фамилией не был добавлен!\n"), 0);
+								if (flag == 0) {
+									m[0] = '\0';
+									strcpy_s(m, "Эксперт с такой фамилией не был добавлен!\n");  //сообщаем клиенту, что нет экспертов с такой фамилией 
+									send((SOCKET)newS, m, sizeof(m), 0);
+								}
 								else {
+									//перезапись файлов, связанных с экспертами
 									expert.WriteFile(lexpert);
 									expert.WriteTable(lexpert);
+									//
 									m[0] = '\0';
 									strcpy_s(m, "Аккаунт успешно удалён!\n");
 									send((SOCKET)newS, m, sizeof(m), 0);
@@ -1053,54 +1192,52 @@ void mailWorking(void* newS) {
 							}
 								break;
 					    }
-						case 4: {
+						case 4: {                      //редактирование информации об экспертах
 							p[0] = '\0';
 							strcpy_s(p, "4");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							ifstream bf("Experts.txt");
 							if (bf.peek() == EOF) {
-								send((SOCKET)newS, "m", sizeof("m"), 0);
+								send((SOCKET)newS, "m", sizeof("m"), 0);           //сообщаем клиенту, что ни один эксперт ещё не был добавлен         
 							}
-							else {
+							else {                                                //если хотя бы один эксперт был добавлен, редактируем данные о нём
 								send((SOCKET)newS, "n", sizeof("n"), 0);
-								//редактирование экспертов
 								p[0] = '\0';
 								k[0] = '\0';
 								int qw;
-								recv((SOCKET)newS, k, sizeof(k), 0); //фамилия
+								recv((SOCKET)newS, k, sizeof(k), 0); //фамилия эксперта, данные о котором хочет изменить администратор
 								m[0] = '\0';
 								int ll = 0;
 								int flag = 0;
-								for (pexpert = lexpert.begin(); pexpert != lexpert.end(); pexpert++) {
+								for (pexpert = lexpert.begin(); pexpert != lexpert.end(); pexpert++) {    //ищем эксперта с заданной фамилией
 									if (strcmp(pexpert->GetF(), k) == 0) {
 										flag++;
 										break;
 									}
 									ll++;
 								}
-								if (flag==0) send((SOCKET)newS, "k", sizeof("k"), 0);
+								if (flag==0) send((SOCKET)newS, "k", sizeof("k"), 0);        //сообщаем администратору, что нет эксперта с такой фамилией
 								else {
-									send((SOCKET)newS, "d", sizeof("d"), 0);
+									send((SOCKET)newS, "d", sizeof("d"), 0);  //если нашли эксперта с такой фамилией, редактируем
 									qw = 0;
 									while (qw!=6) {
-										recv((SOCKET)newS, m, sizeof(m), 0); //номер пункта меню
+										recv((SOCKET)newS, m, sizeof(m), 0); //номер пункта меню редактирования экспертов
 										qw = atoi(m);
 										switch (qw) {
-										case 1: {
+										case 1: {                   //редактирование фамилии эксперта
 											p[0] = '\0';
 											strcpy_s(p, "1");
 											send((SOCKET)newS, p, sizeof(p), 0);
 											com[0] = '\0';
 											recv((SOCKET)newS, com, sizeof(com), 0);
 											pexpert->SetF(com);
-											//cout << supp(ll, lsupp).Get_nameorg() << endl;
 											com[0] = '\0';
+											//перезапись файлов, связанных с экспертом
 											expert.WriteFile(lexpert);
 											expert.WriteTable(lexpert);
-											//supp.WriteTableAdm(lsupp);
 											break;
 										}
-										case 2: {
+										case 2: {                 //редактирование имени эксперта
 											p[0] = '\0';
 											strcpy_s(p, "2");
 											send((SOCKET)newS, p, sizeof(p), 0);
@@ -1108,12 +1245,12 @@ void mailWorking(void* newS) {
 											recv((SOCKET)newS, com, sizeof(com), 0);
 											pexpert->SetI(com);
 											com[0] = '\0';
+											//перезапись файлов, связанных с экспертом
 											expert.WriteFile(lexpert);
 											expert.WriteTable(lexpert);
-											//expert.WriteTableAdm(lsupp);
 											break;
 										}
-										case 3: {
+										case 3: {                //редактирование отчества эксперта
 											p[0] = '\0';
 											strcpy_s(p, "3");
 											send((SOCKET)newS, p, sizeof(p), 0);
@@ -1121,12 +1258,12 @@ void mailWorking(void* newS) {
 											recv((SOCKET)newS, com, sizeof(com), 0);
 											pexpert->SetO(com);
 											com[0] = '\0';
+											//перезапись файлов, связанных с экспертом
 											expert.WriteFile(lexpert);
 											expert.WriteTable(lexpert);
-											//supp.WriteTableAdm(lsupp);
 											break;
 										}
-										case 4: {
+										case 4: {                //редактирование должности эксперта
 											p[0] = '\0';
 											strcpy_s(p, "4");
 											send((SOCKET)newS, p, sizeof(p), 0);
@@ -1134,12 +1271,12 @@ void mailWorking(void* newS) {
 											recv((SOCKET)newS, com, sizeof(com), 0);
 											pexpert->SetPos(com);
 											com[0] = '\0';
+											//перезапись файлов, связанных с экспертом
 											expert.WriteFile(lexpert);
 											expert.WriteTable(lexpert);
-											//supp.WriteTableAdm(lsupp);
 											break;
 										}
-										case 5: {
+										case 5: {                //редактирование стажа эксперта
 											int bb;
 											p[0] = '\0';
 											strcpy_s(p, "5");
@@ -1149,9 +1286,9 @@ void mailWorking(void* newS) {
 											bb = atoi(com);
 											pexpert->SetExp(bb);
 											com[0] = '\0';
+											//перезапись файлов, связанных с экспертом
 											expert.WriteFile(lexpert);
 											expert.WriteTable(lexpert);
-											//supp.WriteTableAdm(lsupp);
 											break;
 										}
 										case 6: {
@@ -1179,7 +1316,7 @@ void mailWorking(void* newS) {
 					c2 = 0;
 					break;
 				}
-				case 3: {
+				case 3: {                   //ИЗМЕНЕНИЕ ЛОГИНА И/ИЛИ ПАРОЛЯ
 					strcpy_s(p, "3");
 					send((SOCKET)newS, p, sizeof(p), 0);
 					while (c2 != 3) {
@@ -1188,7 +1325,7 @@ void mailWorking(void* newS) {
 						recv((SOCKET)newS, m, sizeof(m), 0);
 						c2 = atoi(m);
 						switch (c2) {
-						case 1: {
+						case 1: {                        //изменение логина администратора
 							strcpy_s(p, "1");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							char alog[50];
@@ -1197,7 +1334,7 @@ void mailWorking(void* newS) {
 							recv((SOCKET)newS, m, sizeof(m), 0);
 							ifstream f("Adm_log_in.txt");
 							f.getline(alog, 50, ' ');
-							for (int i = 0; i < strlen(alog); i++) { //считали и расшифровали логин из файла
+							for (int i = 0; i < strlen(alog); i++) {   //считали и расшифровали логин из файла
 								alog[i] = (char)((int)alog[i] - 3);
 							}
 							f.getline(apassw, 50, '\n');
@@ -1208,7 +1345,7 @@ void mailWorking(void* newS) {
 							CheckIn_Adm(m, apassw);
 							break;
 						}
-						case 2: {
+						case 2: {                      //изменение пароля администратора
 							strcpy_s(p, "2");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							char alog[50];
@@ -1592,11 +1729,16 @@ void mailWorking(void* newS) {
 							strcpy_s(p, "3");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							m[0] = '\0';
+							char gbuf[500],gbuff[500];
 							recv((SOCKET)newS, m, sizeof(m), 0); //получили логин
 							int r = 0;
+							gbuf[0] = '\0';
+							gbuff[0] = '\0';
 							for (psupp = l1.begin(); psupp != l1.end(); psupp++) {
 								if (strcmp(psupp->GetLogin(), m) == 0) {
 									send((SOCKET)newS, "1", sizeof("1"), 0);
+									strcpy_s(gbuf, psupp->Get_nameorg());
+									strcpy_s(gbuff, psupp->Get_nameorg());
 									r++;
 									break;
 								}
@@ -1605,12 +1747,40 @@ void mailWorking(void* newS) {
 								send((SOCKET)newS, "2", sizeof("2"), 0);
 							}
 							else {
+								int lastn;
+								Contract c1;
 								psupp->c.SetStatus(2);
+								psupp->c.SetSupplier(gbuf);
+								gbuf[0] = '\0';
+								p[0] = '\0';
+								strcpy_s(gbuf, "230001");
+								_itoa_s(psupp->Get_contracts(), p, 10);
+								strcat_s(gbuf, p);
+								p[0] = '\0';
+								srand(time(NULL));
+								lastn = aaa+rand()%17;
+								aaa++;
+								_itoa_s(lastn, p, 10);
+								strcat_s(gbuf, p);
+								psupp->c.SetContrNum(gbuf);
+								psupp->Set_contracts(psupp->Get_contracts() + 1);
 								l2.push_back(*psupp);
+								cout << "show tje contract:  " << endl;
+								cout << psupp->c.GetClient() << endl;
+								cout << psupp->c.GetSupplier() << endl;
+								c1.SetSupplier(psupp->c.GetSupplier());
+								cout << psupp->c.GetContrNum() << endl;
+								c1.SetContrNum(psupp->c.GetContrNum());
+								contr.push_back(c1);
+								WriteContracts(contr);
+								TableContracts(contr);
 								l1.erase(psupp);
+								
 								for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
 									if (strcmp(psupp->GetLogin(), m) == 0) {
+										cout << "Поменяли цифру на 2 в основном списке" << endl;
 										psupp->c.SetStatus(2);
+										psupp->Set_contracts(psupp->Get_contracts() + 1);
 										break;
 									}
 								}
@@ -1618,15 +1788,95 @@ void mailWorking(void* newS) {
 								cout << poten.size() << endl;
 								cout << l1.size() << endl;
 								cout << l2.size() << endl;
-								supp.WriteTable(lsupp);
+								supp.WriteFile(lsupp);
+								FindContract(contr,gbuff);
+								FinalContract(contr, l2, gbuff);
+								ifstream file("ContractsTF.txt");
+								while (!file.eof()) {
+									//cout << "Hi, babe" << endl;
+									k[0] = '\0';
+									file.getline(k, 256, '\n');
+									m[0] = '\0';
+									strcpy_s(m, "конец");
+									if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
+									else send((SOCKET)newS, k, sizeof(k), 0);
+
+								}
 							}
 
 							break;
 						}
 						case 4: {
+							int state = 0;
 							p[0] = '\0';
 							strcpy_s(p, "4");
 							send((SOCKET)newS, p, sizeof(p), 0);
+							m[0] = '\0';
+							recv((SOCKET)newS, m, sizeof(m), 0); //получили логин
+							int r = 0;
+							for (psupp = l2.begin(); psupp != l2.end(); psupp++) {
+								if (strcmp(psupp->GetLogin(), m) == 0) {
+									send((SOCKET)newS, "1", sizeof("1"), 0);
+									r++;
+									state = 1;   //стейт =1, если договор был в статусе заключённых
+									break;
+								}
+							}
+							if (r == 0) {
+								for (psupp = l3.begin(); psupp != l3.end(); psupp++) {
+									if (strcmp(psupp->GetLogin(), m) == 0) {
+										send((SOCKET)newS, "3", sizeof("3"), 0);
+										r++;
+										state = 2; //если был в заявках от салона на расторжение
+										break;
+									}
+								}
+								if (r==0)
+								send((SOCKET)newS, "2", sizeof("2"), 0);
+							}
+								if (state == 1) {
+									psupp->c.SetStatus(4);
+									l4.push_back(*psupp);
+									l2.erase(psupp);
+									for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
+										if (strcmp(psupp->GetLogin(), m) == 0) {
+											//cout << "Поменяли цифру на 2 в основном списке" << endl;
+											psupp->c.SetStatus(4);
+											break;
+										}
+									}
+								}
+								else if(state==2){
+									char bbuf[500];
+									psupp->c.SetStatus(0);
+									psupp->Set_contracts(psupp->Get_contracts() - 1);
+									poten.push_back(*psupp);
+									l3.erase(psupp);
+									for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
+										if (strcmp(psupp->GetLogin(), m) == 0) {
+											cout << "Поменяли цифру на 2 в основном списке" << endl;
+											psupp->c.SetStatus(0);
+											strcpy_s(bbuf, psupp->Get_nameorg());
+											break;
+										}
+									}
+									for (pcontr = contr.begin(); pcontr != contr.end(); pcontr++) {
+										if (strcmp(bbuf, pcontr->GetSupplier()) == 0) {
+											contr.erase(pcontr);
+											break;
+										}
+									}
+									WriteContracts(contr);
+									TableContracts(contr);
+									cout << "contracts = " << contr.size() << endl;
+								}
+								cout << lsupp.size() << endl;
+								cout << poten.size() << endl;
+								cout << l1.size() << endl;
+								cout << l2.size() << endl;
+								cout << l3.size() << endl;
+								cout << l4.size() << endl;
+								supp.WriteFile(lsupp);
 							break;
 						}
 						case 5: {
@@ -1813,7 +2063,7 @@ void mailWorking(void* newS) {
 				case 2: {
 					strcpy_s(p, "2");
 					send((SOCKET)newS, p, sizeof(p), 0);
-					int ps, exn;
+					int ps, exn,sh;
 					list<Supplier> potential;
 					MakePotSupp(potential,lsupp);
 					/*cout << lsupp.size() << endl;
@@ -1843,7 +2093,34 @@ void mailWorking(void* newS) {
 					}
 					Make1Table(arr, ps, exn);
 					Make2Table(arr, ps, exn);
-					Make3Table(arr, ps, exn);
+					sh=Make3Table(arr, ps, exn);
+					Make4Table(poten, sh);
+					int pointer = 0;
+					m[0] = '\0';
+					for (psupp = poten.begin(); psupp != poten.end(); psupp++) {
+						if (pointer == sh) {
+							cout << psupp->Get_nameorg() << endl;
+							strcpy_s(m, psupp->Get_nameorg());
+							break;
+						}
+						pointer++;
+					}
+					supp.Find(lsupp, m);
+					result[0] = '\0';
+					strcpy_s(result, m);
+					ifstream file("Supp_table_f.txt");
+					while (!file.eof()) {
+						//cout << "Hi, babe" << endl;
+						k[0] = '\0';
+						file.getline(k, 256, '\n');
+						m[0] = '\0';
+						strcpy_s(m, "конец");
+						if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
+						else send((SOCKET)newS, k, sizeof(k), 0);
+						//cout << k << endl;
+					}
+					k[0] = '\0';
+					m[0] = '\0';
 					break;
 				}
 				case 3: {
@@ -1867,6 +2144,12 @@ void mailWorking(void* newS) {
 	}
 }
 
+int numbcl = 0;
+void print() {
+	if (numbcl) printf("Клиент № %d подключён\n\n", numbcl);
+	else printf("Нет подключений\n\n");
+}
+
 int main() {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
@@ -1879,18 +2162,20 @@ int main() {
 		cout << "Ошибка использования Winsock DLL" << endl;
 		return -1;
 	}
-
 	sockaddr_in local;
 	local.sin_family = AF_INET;
 	local.sin_port = htons(1280);
 	local.sin_addr.s_addr = htonl(INADDR_ANY);
 	SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
 	int c = bind(s, (struct sockaddr*)&local, sizeof(local)); //соединение с сокетом
-	int r = listen(s, 5);  //режим ожидания запросов от клиентов
+	int r = listen(s, 5);                                     //режим ожидания запросов от клиентов
+	cout << "*---Сервер ожидает подключений---*" << endl << endl;
 	while (true) {
 		sockaddr_in remote;
 		int j = sizeof(remote);
 		SOCKET newS = accept(s, (struct sockaddr*)&remote, &j);
+		numbcl++;
+		print();
 		_beginthread(mailWorking, 0, (void*)newS);  //создание потока(Начальный адрес процедуры, который начинает выполнение нового потока; размер стека нового потока или 0; список аргументов, передаваемый в новый поток, или NULL)
 	}
 	WSACleanup();  //прекращаем работу Winsock API

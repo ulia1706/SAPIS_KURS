@@ -83,6 +83,33 @@ public:
 	char* GetO() { return O; }
 };
 
+class Admin : public CarShowroom {
+protected:
+	int contr_status;  //статус договора
+	int numb_exp;      //количество экспертов
+	int supps1;        //количество всех поставщиков
+	int supps;         //количество потенциальных поставщиков
+	int numb_all;      //количество заключённых договоров
+public:
+	Admin() {
+		contr_status = 0;
+		numb_exp = 0;
+		supps1 = 0;
+		supps = 0;
+		numb_all=0;
+	}
+	void SetContr(int a) { contr_status = a; }
+	void SetNumbExp(int a) { numb_exp = a; }
+	void SetSuups1(int a) { supps1 = a; }
+	void SetNumbAll(int a) { numb_all = a; }
+	void SetSupps(int a) { supps = a; }
+	int GetContr(){ return contr_status; }
+	int GetNumbExp() { return numb_exp; }
+	int GetSupps1() { return supps1; }
+	int GetSupps() { return supps; }
+	int GetNumbAll() { return numb_all; }
+};
+
 class Expert : public CarShowroom {
 	char pos[50]; //должность
 	int exp;      //опыт
@@ -381,7 +408,7 @@ int Supplier::Filtr_2(list<Supplier> lst, float a, float b)
 	return i;
 }
 
-int Supplier::Find(list<Supplier> lst, char* str)
+int Supplier::Find(list<Supplier> lst, char* str)  //поиск поставщика по названию организации
 {
 	int i = 0;
 	list<Supplier>::iterator p;

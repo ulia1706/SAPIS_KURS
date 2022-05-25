@@ -181,7 +181,7 @@ int CheckPassword(char* str) { //проверка на корректность 
 	int flag = 0, k;
 	k = strlen(str);
 	if (((k > 18) || (k < 8))) {
-		cout << "Пароль должен содержать от 8 до 18 символов.\nПопробуйте снова:" << endl;
+		cout << "\nПароль должен содержать от 8 до 18 символов.\nПопробуйте снова:" << endl;
 		return 0;
 	}
 	for (int i = 0; i < k; i++) {
@@ -259,6 +259,7 @@ int main() {
 		recv(s, b, sizeof(b), 0); recv(s, f, sizeof(f), 0);
 		cout << b; cout << f;
 		t=CheckChoice(1,4);                              //выбор пункта в главном меню
+		system("cls");
 		_itoa_s(t, b, 10);                              
 		send(s, b, sizeof(b), 0); 
 		recv(s, k, sizeof(k), 0);
@@ -854,26 +855,30 @@ int main() {
 			t1 = 0;
 			break;
 		}
-		case 2: {
-			
+		case 2: {                    //ВХОД ПОД ПОСТАВЩИКОМ
 			while (t1 != 3) {
+				k[0] = '\0';
+				b[0] = '\0';
+				//system("cls");
 				recv(s, k, sizeof(k), 0);
 				cout << k << endl;
-				t1=CheckChoice(1,6);
+				k[0] = '\0';
+				t1=CheckChoice(1,3);
+				system("cls");
 				_itoa_s(t1, b, 10);
 				send(s, b, sizeof(b), 0);
 				recv(s, k, sizeof(k), 0);
 				t1 = atoi(k);
 				system("cls");
 				switch (t1) {
-				case 1: {
+				case 1: {                      //регистрация нового поставщика
 					int a = 0;
 					float c =0;
 					//вводим название организации
 						cout << "Введите название вашей организации:  ";
 						cin.getline(buf, 50, '\n');
 						send(s, buf, sizeof(buf), 0);
-					
+						system("cls");
 					//вводим страну локации поставщика
 					cout << "Введите страну локации поставщика:  ";
 					while (a != 2) {
@@ -884,6 +889,7 @@ int main() {
 					}
 					send(s, buf, sizeof(buf), 0);
 					a = 0;
+					system("cls");
 					//вводим город локации поставщика
 					cout << "Введите город локации поставщика:  ";
 					while (a != 2) {
@@ -894,7 +900,8 @@ int main() {
 					}
 					send(s, buf, sizeof(buf), 0);
 					a = 0;
-					//вводим фамилию представителя
+					system("cls");
+					//вводим фамилию представителя организации-поставщика
 					cout << "Введите фамилию представителя:  ";
 					while (a != 2) {
 						buf[0] = '\0';
@@ -904,7 +911,8 @@ int main() {
 					}
 					send(s, buf, sizeof(buf), 0);
 					a = 0;
-					//вводим имя представителя
+					system("cls");
+					//вводим имя представителя организации-поставщика
 					cout << "Введите имя представителя:  ";
 					while (a != 2) {
 						buf[0] = '\0';
@@ -914,7 +922,8 @@ int main() {
 					}
 					send(s, buf, sizeof(buf), 0);
 					a = 0;
-					//вводим отчество представителя
+					system("cls");
+					//вводим отчество представителя организации-поставщика
 					cout << "Введите отчество представителя:  ";
 					while (a != 2) {
 						buf[0] = '\0';
@@ -924,7 +933,8 @@ int main() {
 					}
 					send(s, buf, sizeof(buf), 0);
 					a = 0;
-					//вводим номер телефона представителя
+					system("cls");
+					//вводим номер телефона организации-поставщика
 					cout << "Введите номер телефона:  ";
 					while (a != 2) {
 						buf[0] = '\0';
@@ -934,7 +944,8 @@ int main() {
 					}
 					send(s, buf, sizeof(buf), 0);
 					a = 0;
-					//вводим электронную почту
+					system("cls");
+					//вводим электронную почту организации-поставщика
 					cout << "Введите электронную почту:  ";
 					while (a != 2) {
 						buf[0] = '\0';
@@ -945,6 +956,7 @@ int main() {
 					send(s, buf, sizeof(buf), 0);
 					a = 0;
 					buf[0] = '\0';
+					system("cls");
 					//вводим количество действующих контрактов
 					cout << "Введите количество действующих контрактов:  ";
 					a = CheckChoice(1, 10000);
@@ -952,6 +964,7 @@ int main() {
 					send(s, buf, sizeof(buf), 0);
 					a = 0;
 					buf[0] = '\0';
+					system("cls");
 					//вводим минимальную сумму разовой закупки
 					cout << "Введите минимальную сумму разовой закупки:  ";
 					c = CheckChoiceF(1, 1000000000);
@@ -962,7 +975,11 @@ int main() {
 					//задаём логин
 					int ch = 0;
 					while (ch != -1) {
+						system("cls");
+						if(ch==0)
 						cout << "Придумайте логин:  ";
+						if (ch == 1)
+							cout << "Этот логин уже занят. Попробуйте другое сочетание символов." << endl << endl;
 						while (a != 2) {
 							buf[0] = '\0';
 							cin.getline(buf, 50, '\n');
@@ -973,12 +990,11 @@ int main() {
 						k[0] = '\0';
 						recv(s, k, sizeof(k), 0);
 						ch = atoi(k);
-						cout << ch << endl;
 						k[0] = '\0';
 						a = 0;
 						buf[0] = '\0';
 					}
-					
+					system("cls");
 					//задаём пароль
 					int j = 0;
 					cout << "Придумайте пароль:  ";
@@ -1000,28 +1016,49 @@ int main() {
 							}
 						}
 						buf[j] = '\0';
-						//cin.getline(buf, 50, '\n');
 						a = CheckPassword(buf);
 						if (a == 1) { cout << "Были использованы недопустимые символы. Повторите попытку:" << endl; }
 					}
 					send(s, buf, sizeof(buf), 0);
 					a = 0;
+					system("cls");
+					cout << "Новый поставщик успешно зарегистрирован!" << endl << endl;
 					break;
 				}
 				case 2: {
 					//авторизация
 					char log[500];
 					f[0] = '\0';
-					strcpy_s(f, "a");
+					strcpy_s(f, "c");
+					int j = 0;
 					while (strcmp(f, "b") != 0) {
 						b[0] = '\0';
 						k[0] = '\0';
+						system("cls");
+						if (strcmp(f, "a") == 0) cout << "Логин или пароль были введены неверно. Повторите попытку:" << endl << endl;
 						cout << "Введите логин:  " << endl;
 						cin.getline(b, 50, '\n');
+						system("cls");
 						cout << "Введите пароль:  " << endl;
-						cin.getline(k, 50, '\n');
+							j = 0;
+							buf[0] = '\0';
+							for (;;) {
+								buf[j] = _getch();
+								if (buf[j] == '\r')
+									break;
+								if (buf[j] == '\b') {
+									cout << "\b \b";
+									j--;
+								}
+								else if (buf[j] != '\0') {
+									cout << "*";
+									j++;
+								}
+							}
+							buf[j] = '\0';
 						send(s, b, sizeof(b), 0);
-						send(s, k, sizeof(b), 0);
+						send(s, buf, sizeof(buf), 0);
+						system("cls");
 						f[0] = '\0';
 						recv(s, f, sizeof(f), 0);
 					}
@@ -1033,6 +1070,7 @@ int main() {
 						cout << k << endl;
 						k[0] = '\0';
 						t1 = CheckChoice(1, 5);
+						system("cls");
 						_itoa_s(t1, b, 10);
 						send(s, b, sizeof(b), 0);
 						recv(s, k, sizeof(k), 0);
@@ -1041,28 +1079,31 @@ int main() {
 						b[0] = '\0';
 						
 						switch (t1) {
-						case 1: {
+						case 1: {                   //редактирование информации о поставщиках
+							system("cls");
 							cout<< "1. Отредактировать название.\n2. Отредактировать страну локации представителя.\n3. Отредактировать город локации представителя.\n4. Отредактировать фамилию представителя.\n5. Отредактировать имя представителя.\n6. Отредактировать отчество представителя.\n7. Отредактировать номер телефона.\n8. Отредактировать email.\n9. Отредактировать количество действующих контрактов.\n10. Отредактировать минимальную сумму разовой закупки.\n11. Вернуться." << endl;
 							int qw = CheckChoice(1, 11);
+							system("cls");
 							f[0] = '\0';
 							b[0] = '\0';
 							_itoa_s(qw, f, 10);
 							send(s, log, sizeof(log), 0);
 							send(s, f, sizeof(f), 0);
-							cout<<"вот из гоинг он "<<qw << endl;
 							recv(s, b, sizeof(b), 0);
 							qw = atoi(b);
 							switch (qw) {
 							case 1: {
-								cout << "Введите название вашей организации:  ";
+								cout << "Введите изменённое название вашей организации:  ";
 								cin.getline(buf, 50, '\n');
 								send(s, buf, sizeof(buf), 0);
 								buf[0] = '\0';
+								system("cls");
+								cout << "Изменения успешно сохранены!" << endl<<endl;
 								break;
 							}
 							case 2: {
 								int a = 0;
-								cout << "Введите страну локации поставщика:  ";
+								cout << "Введите изменённую страну локации поставщика:  ";
 								while (a != 2) {
 									buf[0] = '\0';
 									cin.getline(buf, 50, '\n');
@@ -1071,11 +1112,13 @@ int main() {
 								}
 								send(s, buf, sizeof(buf), 0);
 								buf[0] = '\0';
+								system("cls");
+								cout << "Изменения успешно сохранены!" << endl << endl;
 								break;
 							}
 							case 3: {
 								int a = 0;
-								cout << "Введите город локации поставщика:  ";
+								cout << "Введите изменённый город локации поставщика:  ";
 								while (a != 2) {
 									buf[0] = '\0';
 									cin.getline(buf, 50, '\n');
@@ -1084,11 +1127,13 @@ int main() {
 								}
 								send(s, buf, sizeof(buf), 0);
 								buf[0] = '\0';
+								system("cls");
+								cout << "Изменения успешно сохранены!" << endl << endl;
 								break;
 							}
 							case 4: {
 								int a = 0;
-								cout << "Введите фамилию представителя:  ";
+								cout << "Введите изменённую фамилию представителя:  ";
 								while (a != 2) {
 									buf[0] = '\0';
 									cin.getline(buf, 50, '\n');
@@ -1097,11 +1142,13 @@ int main() {
 								}
 								send(s, buf, sizeof(buf), 0);
 								buf[0] = '\0';
+								system("cls");
+								cout << "Изменения успешно сохранены!" << endl << endl;
 								break;
 							}
 							case 5: {
 								int a = 0;
-								cout << "Введите имя представителя:  ";
+								cout << "Введите изменённое имя представителя:  ";
 								while (a != 2) {
 									buf[0] = '\0';
 									cin.getline(buf, 50, '\n');
@@ -1110,11 +1157,13 @@ int main() {
 								}
 								send(s, buf, sizeof(buf), 0);
 								buf[0] = '\0';
+								system("cls");
+								cout << "Изменения успешно сохранены!" << endl << endl;
 								break;
 							}
 							case 6: {
 								int a = 0;
-								cout << "Введите отчество представителя:  ";
+								cout << "Введите изменённое отчество представителя:  ";
 								while (a != 2) {
 									buf[0] = '\0';
 									cin.getline(buf, 50, '\n');
@@ -1123,11 +1172,13 @@ int main() {
 								}
 								send(s, buf, sizeof(buf), 0);
 								buf[0] = '\0';
+								system("cls");
+								cout << "Изменения успешно сохранены!" << endl << endl;
 								break;
 							}
 							case 7: {
 								int a = 0;
-								cout << "Введите номер телефона:  ";
+								cout << "Введите изменённый номер телефона:  ";
 								while (a != 2) {
 									buf[0] = '\0';
 									cin.getline(buf, 50, '\n');
@@ -1136,11 +1187,13 @@ int main() {
 								}
 								send(s, buf, sizeof(buf), 0);
 								buf[0] = '\0';
+								system("cls");
+								cout << "Изменения успешно сохранены!" << endl << endl;
 								break;
 							}
 							case 8: {
 								int a = 0;
-								cout << "Введите электронную почту:  ";
+								cout << "Введите изменённую электронную почту:  ";
 								while (a != 2) {
 									buf[0] = '\0';
 									cin.getline(buf, 50, '\n');
@@ -1149,25 +1202,31 @@ int main() {
 								}
 								send(s, buf, sizeof(buf), 0);
 								buf[0] = '\0';
+								system("cls");
+								cout << "Изменения успешно сохранены!" << endl << endl;
 								break;
 							}
 							case 9: {
 								int a = 0;
-								cout << "Введите количество действующих контрактов:  ";
+								cout << "Введите изменённое количество действующих контрактов:  ";
 								a = CheckChoice(1, 100000);
 								_itoa_s(a, buf, 10);
 								send(s, buf, sizeof(buf), 0);
 								a = 0;
 								buf[0] = '\0';
+								system("cls");
+								cout << "Изменения успешно сохранены!" << endl << endl;
 								break;
 							}
 							case 10: {
 								float c = 0;
-								cout << "Введите минимальную сумму разовой закупки:  ";
+								cout << "Введите изменённую минимальную сумму разовой закупки:  ";
 								c = CheckChoiceF(1, 1000000000);
 								sprintf_s(buf, "%.2f", c);
 								send(s, buf, sizeof(buf), 0);
 								buf[0] = '\0';
+								system("cls");
+								cout << "Изменения успешно сохранены!" << endl << endl;
 								break;
 							}
 							case 11: {
@@ -1176,7 +1235,7 @@ int main() {
 							}
 							break;
 						}
-						case 2: {
+						case 2: {                    //удаление аккаунта поставщика
 							k[0] = '\0';
 							int q = 0;
 							cout<< "Вы действительно хотите удалить свой аккаунт? Данные невозможно будет восстановить." << endl;
@@ -1185,7 +1244,7 @@ int main() {
 							_itoa_s(q, k, 10);
 							send(s, k, sizeof(k), 0);
 							if (q == 1) {
-								cout << log << endl;
+								
 								send(s, log, sizeof(log), 0);
 								k[0] = '\0';
 								recv(s, k, sizeof(k), 0);
@@ -1194,12 +1253,12 @@ int main() {
 							
 							break;
 						}
-						case 3: {
+						case 3: {                    //заключение договора с поставщиком
 							k[0] = '\0';
-							send(s, log, sizeof(log), 0); //отправили логин свой
+							send(s, log, sizeof(log), 0); //отправили логин
 							recv(s, k, sizeof(k), 0);
 							if (strcmp(k, "1") == 0) {
-								cout<<"Договор успешно заключён!!!" << endl;
+								cout<<"Договор успешно заключён!!!" << endl<<endl<<endl;
 								b[0] = '\0';
 								k[0] = '\0';
 								f[0] = '\0';
@@ -1208,24 +1267,25 @@ int main() {
 								while ((strcmp(b, k) != 0) && (strcmp(b, f) != 0)) {
 									b[0] = '\0';
 									recv(s, b, sizeof(b), 0);
+									if(strcmp(b,k)!=0)
 									cout << b << endl;
 								}
-								cout << "вышел из цикла" << endl;
+								cout << endl << endl << endl;
 							}
 							else {
 								cout<< "У вас нет заявок на заключение договора о поставках!" << endl;
 							}
 							break;
 						}
-						case 4: {
+						case 4: {                 //расторжение договора
 							k[0] = '\0';
 							send(s, log, sizeof(log), 0); //отправили логин свой
 							recv(s, k, sizeof(k), 0);
 							if (strcmp(k, "1") == 0) {
-								cout << "Заявка на расторжение договора успешно отправлена!!!" << endl;
+								cout << "Заявка на расторжение договора успешно отправлена!!!" << endl<<endl;
 							}
 							else if(strcmp(k, "2") == 0){
-								cout << "Вы не заключали договор о поставках с салоном АвтоМир!" << endl;
+								cout << "Вы не заключали договор о поставках с салоном АвтоМир!" << endl<<endl;
 							}
 							else {
 								cout<< "Договор расторгнут обеими сторонами!" << endl;
@@ -1248,31 +1308,36 @@ int main() {
 			t1 = 0;
 			break;
 		}
-		case 3: {
+		case 3: {                  //ВХОД ПОД ЭКСПЕРТОМ
+			system("cls");
 			while (t1 != 3) {
 				k[0] = '\0';
 				b[0] = '\0';
 				recv(s, k, sizeof(k), 0);
 				cout << k << endl;
 				t1=CheckChoice(1,3);
+				system("cls");
 				_itoa_s(t1, b, 10);
-				send(s, b, sizeof(b), 0);
+				send(s, b, sizeof(b), 0); 
+				b[0] = '\0';
+				k[0] = '\0';
 				recv(s, k, sizeof(k), 0);
 				t1 = atoi(k);
 				switch (t1) {
-				case 1: {
+				case 1: {                //просмотр информации о поставщиках(с точки зрения эксперта)
 					while (t2 != 5) {
 						k[0] = '\0';
 						b[0] = '\0';
 						recv(s, k, sizeof(k), 0);
 						cout << k << endl;
 						t2=CheckChoice(1,5);
+						system("cls");
 						_itoa_s(t2, b, 10);
 						send(s, b, sizeof(b), 0);
 						recv(s, k, sizeof(k), 0);
 						t2 = atoi(k);
 						switch (t2) {
-						case 1: {
+						case 1: {          //просмотр информации о поставщиках в алфавитном порядке
 							b[0] = '\0';
 							k[0] = '\0';
 							strcpy_s(k, "конец");
@@ -1280,13 +1345,14 @@ int main() {
 							while (strcmp(b, k) != 0) {
 								b[0] = '\0';
 								recv(s, b, sizeof(b), 0);
+								if(strcmp(b,k)!=0)
 								cout << b << endl;
 							}
-							cout << "вышел из цикла" << endl;
 							k[0] = '\0';
+							cout << endl << endl;
 							break;
 						}
-						case 2: {
+						case 2: {              //просмотр информации о поставщиках с фильтрацией по странам
 							b[0] = '\0';
 							cout << "Введите интересующую Вас страну:" << endl;
 							cin.getline(b, 50, '\n');
@@ -1298,24 +1364,23 @@ int main() {
 							while ((strcmp(b, k) != 0)&&(strcmp(b, f)!=0)) {
 								b[0] = '\0';
 								recv(s, b, sizeof(b), 0);
+								if(strcmp(b,k)!=0)
 								cout << b << endl;
 							}
-							cout << "вышел из цикла" << endl;
+							cout << endl;
 							break;
 						}
-						case 3: {
+						case 3: {     //просмотр информации о поставщиках с фильтрацией по min разовой цене закупки
 							b[0] = '\0';
 							float a, c;
 							cout << "Введите нижнюю границу минимальной суммы разовой закупки:" << endl;
 							a = CheckChoiceF(1, 1000000000);
 							sprintf_s(b, "%.2f", a);
-							//cin.getline(b, 50, '\n');
 							send(s, b, sizeof(b), 0);
 							b[0] = '\0';
 							cout << "Введите верхнюю границу минимальной суммы разовой закупки:" << endl;
 							c = CheckChoiceF(1, 1000000000);
 							sprintf_s(b, "%.2f", c);
-							//cin.getline(b, 50, '\n');
 							send(s, b, sizeof(b), 0);
 							k[0] = '\0';
 							f[0] = '\0';
@@ -1324,26 +1389,28 @@ int main() {
 							while ((strcmp(b, k) != 0) && (strcmp(b, f) != 0)) {
 								b[0] = '\0';
 								recv(s, b, sizeof(b), 0);
+								if(strcmp(b,k)!=0)
 								cout << b << endl;
 							}
-							cout << "вышел из цикла" << endl;
+							cout << endl;
 							break;
 						}
-						case 4: {
+						case 4: {               //поиск информации о поставщике
 							b[0] = '\0';
 							cout << "Введите интересующего Вас поставщика:" << endl;
 							cin.getline(b, 50, '\n');
 							send(s, b, sizeof(b), 0);
 							k[0] = '\0';
 							f[0] = '\0';
-							strcpy_s(f, "Такой поставщик не был зарегистрирован!\n");
+							strcpy_s(f, "Такого поставщика нет среди потенциальных!\n");
 							strcpy_s(k, "конец");
 							while ((strcmp(b, k) != 0) && (strcmp(b, f) != 0)) {
 								b[0] = '\0';
 								recv(s, b, sizeof(b), 0);
+								if(strcmp(b,k)!=0)
 								cout << b << endl;
 							}
-							cout << "вышел из цикла" << endl;
+							cout << endl << endl;
 							break;
 						}
 						case 5: {
@@ -1354,58 +1421,66 @@ int main() {
 					t2 = 0;
 					break;
 				}
-				case 2: {
-					int a, b;
+				case 2: {         //реализация метода ранга
 					k[0] = '\0';
 					recv(s, k, sizeof(k), 0);
-					a = atoi(k); //suppliers
-					k[0] = '\0';
-					recv(s, k, sizeof(k), 0);
-					b = atoi(k); //experts
-					int arr[50][50];
-					int flag,buff;
-					for (int i = 0; i < b; i++) {
-						cout << "Оценивает эксперт №" << i + 1 << endl;
-						for (int j = 0; j < a; j++) {
-							cout << "Оценка поставщика №" << j + 1 << endl;
-							flag = 1;
-							while (flag != 0) {
-								buff = CheckChoice(1, 10);
-								flag = 0;
-								for (int k = 0; k < j; k++) {
-									if (arr[i][k] == buff) flag++;
-								}
-								if (flag != 0) {
-									cout << "Вы поставили такую оценку другому поставщику. Их нельзя повторять!" << endl;
-								}
-								else {
-									arr[i][j] = buff;
-									k[0] = '\0';
-									_itoa_s(arr[i][j], k, 10);
-									send(s, k, sizeof(k), 0);
-								}
+					if (strcmp(k, "a") == 0) {
+						cout<< " Для выбора наилучшего Поставщика методом ранга необходимо не менее 2-ух Поставщиков и не менее 2-ух экспертов." << endl;
+						cout << " Поэтому выполнение данного пункта меню пока невозможно. Добавьте экспертов или подождите появления новых потенциальных Поставщиков" << endl<<endl<<endl;
+						k[0] = '\0';
+					}
+					else {
+						int a, b;
+						k[0] = '\0';
+						recv(s, k, sizeof(k), 0);
+						a = atoi(k); //количество потенциальных поставщиков
+						k[0] = '\0';
+						recv(s, k, sizeof(k), 0);
+						b = atoi(k); //количество действующих экспертов
+						int arr[50][50];
+						int flag, buff;
+						for (int i = 0; i < b; i++) {             //выставление оценок Поставщикам всеми экспертами
+							system("cls");
+							cout << "Оценивает эксперт №" << i + 1 << endl;
+							cout << "*******************" << endl << endl;
+							for (int j = 0; j < a; j++) {
+								cout << "Оценка поставщика №" << j + 1 << endl;
+								flag = 1;
+								while (flag != 0) {
+									buff = CheckChoice(1, 10);
+									flag = 0;
+									for (int k = 0; k < j; k++) {
+										if (arr[i][k] == buff) flag++;
+									}
+									if (flag != 0) {
+										cout << "Вы поставили такую оценку другому Поставщику. Их нельзя повторять!" << endl;
+									}
+									else {
+										arr[i][j] = buff;
+										k[0] = '\0';
+										_itoa_s(arr[i][j], k, 10);
+										send(s, k, sizeof(k), 0);
+									}
 
+								}
 							}
 						}
-					}
-					for (int i = 0; i < b; i++) {
-						for (int j = 0; j < a; j++) {
-							cout << arr[i][j] << "  ";
-						}
-						cout << endl;
-					}
-					char bf[500];
-					bf[0] = '\0';
-					k[0] = '\0';
-					f[0] = '\0';
-					strcpy_s(f, "Такой поставщик не был зарегистрирован!\n");
-					strcpy_s(k, "конец");
-					while ((strcmp(bf, k) != 0) && (strcmp(bf, f) != 0)) {
+						system("cls");
+						char bf[500];
 						bf[0] = '\0';
-						recv(s, bf, sizeof(bf), 0);
-						cout << bf << endl;
+						k[0] = '\0';
+						f[0] = '\0';
+						strcpy_s(f, "Такой поставщик не был зарегистрирован!\n");
+						strcpy_s(k, "конец");
+						cout << "Наилучшая альтернатива среди Поставщиков по результатам вычислений методом ранга:" << endl << endl;
+						while ((strcmp(bf, k) != 0) && (strcmp(bf, f) != 0)) {
+							bf[0] = '\0';
+							recv(s, bf, sizeof(bf), 0);
+							if(strcmp(bf,k)!=0)
+							cout << bf << endl;
+						}
 					}
-					cout << "вышел из цикла" << endl;
+					cout << endl << endl;
 					break;
 				}
 				case 3: {

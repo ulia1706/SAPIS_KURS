@@ -118,6 +118,7 @@ public:
 		}
 		file.close();
 	}
+	
 	int Filtre(list<Expert> lst, int a) {
 		int i = 0;
 		list<Expert>::iterator p;
@@ -244,8 +245,23 @@ public:
 	void WriteFile(list<Supplier> lst);
 	void WriteTable(list <Supplier> lst);
 	void WriteTableAdm(list<Supplier> lst);
-	//сортировка
+	//сортировки
 	void Sorting(list<Supplier> lst);
+	void Sorting(list<Expert> lst, list<Supplier> supp) {
+		supp.sort();
+		list<Expert>::iterator p;
+		ofstream file("Suppliers_bufer.txt", ios_base::trunc);
+		file << setw(101) << setfill('-') << "" << endl;
+		file << setfill(' ') << "|" << setw(13) << "ФИО" << setw(10) << "|" << setw(17) << "Стаж" << setw(7) << "|" << setw(29) << "Должность" << setw(24) << "|" << endl;
+		file << setw(101) << setfill('-') << "" << endl;
+		for (p = lst.begin(); p != lst.end(); p++) {
+			file << setfill(' ') << "|" << left << setw(22) << p->GetF() << right << "|" << left << setw(23) << p->GetExp() << right << "|" << left << setw(52) << p->GetPos() << right << "|" << endl;
+			file << setfill(' ') << "|" << left << setw(22) << p->GetI() << right << "|" << setw(24) << "|" << setw(53) << "|" << endl;
+			file << setfill(' ') << "|" << left << setw(22) << p->GetO() << right << "|" << setw(24) << "|" << setw(53) << "|" << endl;
+			file << setw(101) << setfill('-') << "" << endl;
+		}
+		file.close();
+	}
 	//фильтрации
 	int Filtr_1(list<Supplier>lst, char* str);
 	int Filtr_2(list<Supplier> lst, float a, float b);
@@ -505,10 +521,7 @@ f.close();
 void MakePotSupp(list<Supplier>& lst,list<Supplier> lst1) {
 	list<Supplier>::iterator p;
 	for (p = lst1.begin(); p != lst1.end(); p++) {
-		cout << "hi" << endl;
-		cout << p->c.GetStatus() << endl;
 		if (p->c.GetStatus() == 0) {
-			cout << "hello" << endl;
 			lst.push_back(*p);
 		}
 	}
@@ -522,8 +535,6 @@ void MaxElement(const T* arr, int& maxel, T& maxvalue, int a) { // шаблон�
 			maxel = i;
 		}
 	}
-	cout << "Номер элемента с наибольшим весом: " << maxel << endl;
-	cout << "Наибольший вес: " << maxvalue;
 }
 
 void Make1Table(int arr[50][50], int a, int b) { //a - поставщики; b- эксперты
@@ -620,7 +631,6 @@ int Make3Table(int arr[50][50], int a, int b) {
 				array[i][m] = arr[i][m];
 				if (total == 0) throw 1;
 				array[i][m] = array[i][m] / total;
-				cout << "посчитали дроби = " << array[i][m] << endl;
 			}
 			catch (int) {
 				cout << "Произошло деление на ноль.\nРезультаты расчётов не будут верны.\nВыполните работу по оценке поставщиков снова." << endl;
@@ -775,6 +785,7 @@ void mailWorking(void* newS) {
 	com[0] = '\0'; p[0] = '\0'; k[0] = '\0'; m[0] = '\0';
 	cout << "*---Сервер готов к работе---*\n\n";
 	MakeSuppList(lsupp);
+	supp.WriteTable(lsupp);
 	MakeExpList(lexpert);
 	for (psupp = lsupp.begin(); psupp != lsupp.end();psupp++) {
 		if (psupp->c.GetStatus() == 0) poten.push_back(*psupp); //заполнение списков поставщиков с разными статусами договора
@@ -1385,79 +1396,71 @@ void mailWorking(void* newS) {
 			c1 = 0;
 			break;
 		}
-		case 2: {
+		case 2: {                //ВХОД ПОД ПОСТАВЩИКОМ
 			strcpy_s(p, "2");
 			send((SOCKET)newS, p, sizeof(p), 0);
 			p[0] = '\0';
 			while (c1 != 3) {
+				k[0] = '\0';
+				m[0] = '\0';
 				strcpy_s(k, "МЕНЮ ПОСТАВЩИКА:\n 1. Зарегистрироваться.\n 2. Войти.\n 3. Вернуться в главное меню.");
 				send((SOCKET)newS, k, sizeof(k), 0);
 				recv((SOCKET)newS, m, sizeof(m), 0);
 				c1 = atoi(m);
 				switch (c1) {
-				case 1: {
+				case 1: {               //регистрация нового поставщика
 					strcpy_s(p, "1");
 					send((SOCKET)newS, p, sizeof(p), 0);
-
 					//получение названия организации
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					supp.Set_nameorg(com);
 					com[0] = '\0';
-
-					//получение страны
+					//получение страны локации поставщика
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					supp.Set_country(com);
 					com[0] = '\0';
-
-					//получение города
+					//получение города локации поставщика
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					supp.Set_city(com);
 					com[0] = '\0';
-
-					//получение фамилии
+					//получение фамилии представителя
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					supp.SetF(com);
 					com[0] = '\0';
-
-					//получение имя
+					//получение имени представителя
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					supp.SetI(com);
 					com[0] = '\0';
-
-					//получение отчества
+					//получение отчества представителя
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					supp.SetO(com);
 					com[0] = '\0';
-
-					//получение номера телефона
+					//получение номера телефона оргнанизации-поставщика
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					supp.Set_phone(com);
 					com[0] = '\0';
-
-					//получение электронную почту
+					//получение адреса электронной почты
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					supp.Set_email(com);
 					com[0] = '\0';
-
-					//получение количество действующих контрактов
+					//получение количества действующих контрактов организации-поставщика
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					int d;
 					d = atoi(com);
 					supp.Set_contracts(d);
 					com[0] = '\0';
-
-					//получение минимальную стоимость
+					//получение минимальной стоимости разовой закупки
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					float numb;
 					numb = stof(com);
 					supp.Set_min_price(numb);
 					com[0] = '\0';
-					//получение логина
+					//получение логина нового поставщика
 					int ch = 0;
 					while (ch != -1) {
 						ch = 0;
 						recv((SOCKET)newS, com, sizeof(com), 0);
-						for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
+						for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {     //проверяем, не занят ли вновь выбранный логин для поставщика
 							if (strcmp(com, psupp->GetLogin()) == 0) {
 								ch++;
 							}
@@ -1469,25 +1472,20 @@ void mailWorking(void* newS) {
 							_itoa_s(ch, m, 10);
 							send((SOCKET)newS, m, sizeof(m), 0);
 							m[0] = '\0';
-							
 					}
 					supp.SetLogin(com);
 					com[0] = '\0';
-
-					//получение пароль
+					//получение пароля нового поставщика
 					recv((SOCKET)newS, com, sizeof(com), 0);
 					supp.SetPassword(com);
 					com[0] = '\0';
-
-					lsupp.push_back(supp);
-					/*for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
-						cout << psupp->Get_nameorg() << "\n" << psupp->Get_country() << "\n" << psupp->Get_city() << "\n" << psupp->GetF() << "\n" << psupp->GetI() << "\n" << psupp->GetO() << "\n" << psupp->Get_phone() << "\n" << psupp->Get_email() << "\n" << psupp->Get_contracts() << "\n" << psupp->Get_min_price() << endl;
-						cout << psupp->GetLogin() << "\n" << psupp->GetPassword() << endl;
-					}*/
-					supp.WriteFile(lsupp);
+					lsupp.push_back(supp);  //добавление нового поставщика в общий список
+					poten.push_back(supp);  //добавление нового поставщика в список потенциальных
+					supp.WriteFile(lsupp);  //перезапись файлов с информацией о поставщиках
+					supp.WriteTable(lsupp); 
 					break;
 				}
-				case 2: {
+				case 2: {                 //вход в существующий аккаунт поставщика      
 					int post=0;
 					strcpy_s(p, "2");
 					send((SOCKET)newS, p, sizeof(p), 0);
@@ -1500,24 +1498,21 @@ void mailWorking(void* newS) {
 						int a = 0;
 						recv((SOCKET)newS, k, sizeof(k), 0); //получили логин
 						recv((SOCKET)newS, m, sizeof(m), 0); //получили пароль
+						//проверяем логин
 						for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
 							if (strcmp(k, psupp->GetLogin()) == 0) {
 								p[0] = '\0';
-								cout << psupp->GetLogin() << endl;
 								strcpy_s(p, "b");
 								psupp = lsupp.end();
 								psupp--;
-								//continue;
 							}
 							 a++;
 						}
 						a--;
-						cout << "jsdhfbd  "<< a << endl;
-						//check password now
+						//проверяем пароль
 						k[0] = '\0';
 						if (strcmp(m, supp(a, lsupp).GetPassword()) == 0) {
 							strcpy_s(k, "b");
-							cout << supp(a, lsupp).GetPassword() << endl;
 						}
 						if(strcmp(p,k)==0) send((SOCKET)newS, k, sizeof(k), 0);
 						else {
@@ -1526,7 +1521,7 @@ void mailWorking(void* newS) {
 						}
 						k[0] = '\0';
 					}
-					//авторизация
+					//
 					p[0] = '\0';
 					while (post != 5) {
 						k[0] = '\0';
@@ -1536,7 +1531,7 @@ void mailWorking(void* newS) {
 						recv((SOCKET)newS, m, sizeof(m), 0);
 						post = atoi(m);
 						switch (post) {
-						case 1: {
+						case 1: {                //редактирование информации о поставщике
 							strcpy_s(p, "1");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							p[0] = '\0';
@@ -1548,122 +1543,132 @@ void mailWorking(void* newS) {
 							int ll = 0;
 							for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
 								if (strcmp(psupp->GetLogin(), k) == 0) {
-									cout << "Мы здесь" << endl;
-									//lsupp.erase(psupp);
 									break;
 								}
 								ll++;
 							}
-							cout << psupp->Get_nameorg() << endl;
-							cout << "Он седьмой по счёту  " << ll << endl;
+							list<Supplier>::iterator it;
+							for (it = poten.begin(); it != poten.end(); it++) {
+								if (strcmp(it->GetLogin(), k) == 0) {
+									break;
+								}
+							}
 							qw = atoi(m);
 							switch (qw) {
-							case 1: {
+							case 1: {                      //редактирование названия организации
 								p[0] = '\0';
 								strcpy_s(p, "1");
 								send((SOCKET)newS, p, sizeof(p), 0);
 								com[0] = '\0';
 								recv((SOCKET)newS, com, sizeof(com), 0);
 								psupp->Set_nameorg(com);
-								//cout << supp(ll, lsupp).Get_nameorg() << endl;
+								it->Set_nameorg(com);
 								com[0] = '\0';
+								//перезапись всех связанных с поставщиками файлов
 								supp.WriteFile(lsupp);
 								supp.WriteTable(lsupp);
 								supp.WriteTableAdm(lsupp);
 								break;
 							}
-							case 2: {
+							case 2: {               //редактирование страны
 								p[0] = '\0';
 								strcpy_s(p, "2");
 								send((SOCKET)newS, p, sizeof(p), 0);
 								com[0] = '\0';
 								recv((SOCKET)newS, com, sizeof(com), 0);
 								psupp->Set_country(com);
+								it->Set_country(com);
 								com[0] = '\0';
 								supp.WriteFile(lsupp);
 								supp.WriteTable(lsupp);
 								supp.WriteTableAdm(lsupp);
 								break;
 							}
-							case 3: {
+							case 3: {            //редактирование города
 								p[0] = '\0';
 								strcpy_s(p, "3");
 								send((SOCKET)newS, p, sizeof(p), 0);
 								com[0] = '\0';
 								recv((SOCKET)newS, com, sizeof(com), 0);
 								psupp->Set_city(com);
+								it->Set_city(com);
 								com[0] = '\0';
 								supp.WriteFile(lsupp);
 								supp.WriteTable(lsupp);
 								supp.WriteTableAdm(lsupp);
 								break;
 							}
-							case 4: {
+							case 4: {           //редактирование фамилии
 								p[0] = '\0';
 								strcpy_s(p, "4");
 								send((SOCKET)newS, p, sizeof(p), 0);
 								com[0] = '\0';
 								recv((SOCKET)newS, com, sizeof(com), 0);
 								psupp->SetF(com);
+								it->SetF(com);
 								com[0] = '\0';
 								supp.WriteFile(lsupp);
 								supp.WriteTable(lsupp);
 								supp.WriteTableAdm(lsupp);
 								break;
 							}
-							case 5: {
+							case 5: {             //редактирование имени
 								p[0] = '\0';
 								strcpy_s(p, "5");
 								com[0] = '\0';
 								send((SOCKET)newS, p, sizeof(p), 0);
 								recv((SOCKET)newS, com, sizeof(com), 0);
 								psupp->SetI(com);
+								it->SetI(com);
 								com[0] = '\0';
 								supp.WriteFile(lsupp);
 								supp.WriteTable(lsupp);
 								supp.WriteTableAdm(lsupp);
 								break;
 							}
-							case 6: {
+							case 6: {            //редактирование отчества
 								p[0] = '\0';
 								strcpy_s(p, "6");
 								send((SOCKET)newS, p, sizeof(p), 0);
 								com[0] = '\0';
 								recv((SOCKET)newS, com, sizeof(com), 0);
 								psupp->SetO(com);
+								it->SetO(com);
 								com[0] = '\0';
 								supp.WriteFile(lsupp);
 								supp.WriteTable(lsupp);
 								supp.WriteTableAdm(lsupp);
 								break;
 							}
-							case 7: {
+							case 7: {            //редактирование номера телефона
 								p[0] = '\0';
 								strcpy_s(p, "7");
 								send((SOCKET)newS, p, sizeof(p), 0);
 								com[0] = '\0';
 								recv((SOCKET)newS, com, sizeof(com), 0);
 								psupp->Set_phone(com);
+								it->Set_phone(com);
 								com[0] = '\0';
 								supp.WriteFile(lsupp);
 								supp.WriteTable(lsupp);
 								supp.WriteTableAdm(lsupp);
 								break;
 							}
-							case 8: {
+							case 8: {           //редактирование электронной почты
 								p[0] = '\0';
 								strcpy_s(p, "8");
 								send((SOCKET)newS, p, sizeof(p), 0);
 								com[0] = '\0';
 								recv((SOCKET)newS, com, sizeof(com), 0);
 								psupp->Set_email(com);
+								it->Set_email(com);
 								com[0] = '\0';
 								supp.WriteFile(lsupp);
 								supp.WriteTable(lsupp);
 								supp.WriteTableAdm(lsupp);
 								break;
 							}
-							case 9: {
+							case 9: {             //редактирование количества договоров
 								p[0] = '\0';
 								strcpy_s(p, "9");
 								send((SOCKET)newS, p, sizeof(p), 0);
@@ -1672,10 +1677,15 @@ void mailWorking(void* newS) {
 								int d;
 								d = atoi(com);
 								psupp->Set_contracts(d);
+								it->Set_contracts(d);
 								com[0] = '\0';
+								//перезапись всех связанных с поставщиками файлов
+								supp.WriteFile(lsupp);
+								supp.WriteTable(lsupp);
+								supp.WriteTableAdm(lsupp);
 								break;
 							}
-							case 10: {
+							case 10: {             //редактирование минимальной цены разовой закупки
 								p[0] = '\0';
 								strcpy_s(p, "10");
 								send((SOCKET)newS, p, sizeof(p), 0);
@@ -1684,16 +1694,22 @@ void mailWorking(void* newS) {
 								float numb;
 								numb = stof(com);
 								psupp->Set_min_price(numb);
+								it->Set_min_price(numb);
 								com[0] = '\0';
+								//перезапись всех связанных с поставщиками файлов
+								supp.WriteFile(lsupp);
+								supp.WriteTable(lsupp);
+								supp.WriteTableAdm(lsupp);
 								break;
 							}
 							case 11: {
 								break;
 							}
+								
 							}
 							break;
 						}
-						case 2: {
+						case 2: {             //удаление аккаунта поставщика
 							p[0] = '\0';
 							m[0] = '\0';
 							int q;
@@ -1704,27 +1720,24 @@ void mailWorking(void* newS) {
 							if (q == 1) {
 								m[0] = '\0';
 								recv((SOCKET)newS, m, sizeof(m), 0);
-								cout << m << endl;
 								for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
 									if (strcmp(psupp->GetLogin(), m) == 0) {
-										cout << "Мы здесь" << endl;
 										lsupp.erase(psupp);
 										break;
 									}
 								}
-								for (auto l : lsupp) {
-									cout << l.GetF() << endl;
-								}
+								poten.clear();
+								MakePotSupp(poten, lsupp);
 								supp.WriteFile(lsupp);
 								m[0] = '\0';
 								strcpy_s(m, "Аккаунт успешно удалён!\n");
 								send((SOCKET)newS, m, sizeof(m), 0);
 								m[0] = '\0';
 							}
-							
+							supp.WriteTable(lsupp);
 							break;
 						}
-						case 3: {
+						case 3: {             //заключение договора с автосалоном
 							p[0] = '\0';
 							strcpy_s(p, "3");
 							send((SOCKET)newS, p, sizeof(p), 0);
@@ -1765,35 +1778,24 @@ void mailWorking(void* newS) {
 								psupp->c.SetContrNum(gbuf);
 								psupp->Set_contracts(psupp->Get_contracts() + 1);
 								l2.push_back(*psupp);
-								cout << "show tje contract:  " << endl;
-								cout << psupp->c.GetClient() << endl;
-								cout << psupp->c.GetSupplier() << endl;
 								c1.SetSupplier(psupp->c.GetSupplier());
-								cout << psupp->c.GetContrNum() << endl;
 								c1.SetContrNum(psupp->c.GetContrNum());
 								contr.push_back(c1);
 								WriteContracts(contr);
 								TableContracts(contr);
 								l1.erase(psupp);
-								
 								for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
 									if (strcmp(psupp->GetLogin(), m) == 0) {
-										cout << "Поменяли цифру на 2 в основном списке" << endl;
 										psupp->c.SetStatus(2);
 										psupp->Set_contracts(psupp->Get_contracts() + 1);
 										break;
 									}
 								}
-								cout<< lsupp.size() << endl;
-								cout << poten.size() << endl;
-								cout << l1.size() << endl;
-								cout << l2.size() << endl;
 								supp.WriteFile(lsupp);
 								FindContract(contr,gbuff);
 								FinalContract(contr, l2, gbuff);
-								ifstream file("ContractsTF.txt");
+								ifstream file("FinalContract.txt");
 								while (!file.eof()) {
-									//cout << "Hi, babe" << endl;
 									k[0] = '\0';
 									file.getline(k, 256, '\n');
 									m[0] = '\0';
@@ -1803,10 +1805,10 @@ void mailWorking(void* newS) {
 
 								}
 							}
-
+							supp.WriteTable(lsupp);
 							break;
 						}
-						case 4: {
+						case 4: {               //расторжение договора
 							int state = 0;
 							p[0] = '\0';
 							strcpy_s(p, "4");
@@ -1818,7 +1820,7 @@ void mailWorking(void* newS) {
 								if (strcmp(psupp->GetLogin(), m) == 0) {
 									send((SOCKET)newS, "1", sizeof("1"), 0);
 									r++;
-									state = 1;   //стейт =1, если договор был в статусе заключённых
+									state = 1;   //=1, если договор был в статусе заключённых
 									break;
 								}
 							}
@@ -1827,7 +1829,7 @@ void mailWorking(void* newS) {
 									if (strcmp(psupp->GetLogin(), m) == 0) {
 										send((SOCKET)newS, "3", sizeof("3"), 0);
 										r++;
-										state = 2; //если был в заявках от салона на расторжение
+										state = 2; //если договор был в заявках от салона на расторжение
 										break;
 									}
 								}
@@ -1840,7 +1842,6 @@ void mailWorking(void* newS) {
 									l2.erase(psupp);
 									for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
 										if (strcmp(psupp->GetLogin(), m) == 0) {
-											//cout << "Поменяли цифру на 2 в основном списке" << endl;
 											psupp->c.SetStatus(4);
 											break;
 										}
@@ -1854,7 +1855,6 @@ void mailWorking(void* newS) {
 									l3.erase(psupp);
 									for (psupp = lsupp.begin(); psupp != lsupp.end(); psupp++) {
 										if (strcmp(psupp->GetLogin(), m) == 0) {
-											cout << "Поменяли цифру на 2 в основном списке" << endl;
 											psupp->c.SetStatus(0);
 											strcpy_s(bbuf, psupp->Get_nameorg());
 											break;
@@ -1868,15 +1868,9 @@ void mailWorking(void* newS) {
 									}
 									WriteContracts(contr);
 									TableContracts(contr);
-									cout << "contracts = " << contr.size() << endl;
 								}
-								cout << lsupp.size() << endl;
-								cout << poten.size() << endl;
-								cout << l1.size() << endl;
-								cout << l2.size() << endl;
-								cout << l3.size() << endl;
-								cout << l4.size() << endl;
 								supp.WriteFile(lsupp);
+								supp.WriteTable(lsupp);
 							break;
 						}
 						case 5: {
@@ -1894,36 +1888,24 @@ void mailWorking(void* newS) {
 					send((SOCKET)newS, p, sizeof(p), 0);
 					break;
 				}
-				/*case 4: {
-					strcpy_s(p, "4");
-					send((SOCKET)newS, p, sizeof(p), 0);
-					break;
-				}
-				case 5: {
-					strcpy_s(p, "5");
-					send((SOCKET)newS, p, sizeof(p), 0);
-					break;
-				}
-				case 6: {
-					strcpy_s(p, "6");
-					send((SOCKET)newS, p, sizeof(p), 0);
-					break;
-				}*/
 				}
 			}
 			c1 = 0;
 			break;
 		}
-		case 3: {
+		case 3: {                 //МЕНЮ ЭКСПЕРТА
 			strcpy_s(p, "3");
 			send((SOCKET)newS, p, sizeof(p), 0);
 			while (c1 != 3) {
+				k[0] = '\0';
+				m[0] = '\0';
 				strcpy_s(k, "МЕНЮ ЭКСПЕРТА:\n 1. Просмотреть информацию о потенциальных поставщиках.\n 2. Выбрать наиболее подходящего поставщика.\n 3. Вернуться в главное меню.\n ");
 				send((SOCKET)newS, k, sizeof(k), 0);
+				k[0] = '\0';
 				recv((SOCKET)newS, m, sizeof(m), 0);
 				c1 = atoi(m);
 				switch (c1) {
-				case 1: {
+				case 1: {                //просмотр информации о поставщиках в различных вариациях
 					strcpy_s(p, "1");
 					send((SOCKET)newS, p, sizeof(p), 0);
 					while (c2 != 5) {
@@ -1931,39 +1913,37 @@ void mailWorking(void* newS) {
 						m[0] = '\0';
 						strcpy_s(k, "ИНФОРМАЦИЯ О ПОТЕНЦИАЛЬНЫХ ПОСТАВЩИКАХ:\n 1. В алфавитном порядке.\n 2. С фильтрацией по странам.\n 3. С фильтрацией по минимальной разовой цене закупки.\n 4. Поиск конкретного поставщика.\n 5. Вернуться в меню эксперта.\n ");
 						send((SOCKET)newS, k, sizeof(k), 0);
-						cout << k << endl;
 						recv((SOCKET)newS, m, sizeof(m), 0);
 						c2 = atoi(m);
 						switch (c2) {
-						case 1: {
-							//p[0] = '\0';
+						case 1: {                 //просмотр информации о поставщиках в алфавитном порядке
 							strcpy_s(p, "1");
 							send((SOCKET)newS, p, sizeof(p), 0);
-							supp.Sorting(lsupp);
+							supp.WriteFile(lsupp);
+							supp.WriteTable(lsupp);
+							supp.Sorting(poten);
 							ifstream file("Supp_table_sort.txt"); 
 							while (!file.eof()) {
-								cout<<"Hi, babe" << endl;
 								k[0] = '\0';
 								file.getline(k, 256,'\n');
 								m[0] = '\0';
 								strcpy_s(m, "конец");
 								if(file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
 								else send((SOCKET)newS, k, sizeof(k), 0);
-								cout << k << endl;
 							}
 							k[0] = '\0';
-							cout << "вышел из цикла" << endl;
 							file.close();
 							m[0] = '\0';
-							//p[0] = '\0';
 							break;
 						}
-						case 2: {
+						case 2: {               //просмотр информации о поставщиках с фильтрацией по странам
 							strcpy_s(p, "2");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							m[0] = '\0'; int tt;
 							recv((SOCKET)newS, m, sizeof(m), 0);
-							tt = supp.Filtr_1(lsupp, m);
+							supp.WriteFile(lsupp);
+							supp.WriteTable(lsupp);
+							tt = supp.Filtr_1(poten, m);
 							if (tt == 0) {
 								m[0] = '\0';
 								strcpy_s(m, "Поставщик из заданной страны не найден!\n");
@@ -1972,14 +1952,12 @@ void mailWorking(void* newS) {
 							else {
 								ifstream file("Supp_table_f1.txt");
 								while (!file.eof()) {
-									//cout << "Hi, babe" << endl;
 									k[0] = '\0';
 									file.getline(k, 256, '\n');
 									m[0] = '\0';
 									strcpy_s(m, "конец");
 									if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
 									else send((SOCKET)newS, k, sizeof(k), 0);
-									//cout << k << endl;
 								}
 								k[0] = '\0';
 							}
@@ -1987,7 +1965,7 @@ void mailWorking(void* newS) {
 							k[0] = '\0';
 							break;
 						}
-						case 3: {
+						case 3: {       //просмотр информации о поставщиках с фильтрацией по min разовой цене закупки
 							strcpy_s(p, "3");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							float a, b;
@@ -1997,7 +1975,9 @@ void mailWorking(void* newS) {
 							m[0] = '\0';
 							recv((SOCKET)newS, m, sizeof(m), 0);
 							b = stof(m);
-							tt = supp.Filtr_2(lsupp, a,b);
+							supp.WriteFile(lsupp);
+							supp.WriteTable(lsupp);
+							tt = supp.Filtr_2(poten, a,b);
 							if (tt == 0) {
 								m[0] = '\0';
 								strcpy_s(m, "Такие поставщики не найдены!\n");
@@ -2006,14 +1986,12 @@ void mailWorking(void* newS) {
 							else {
 								ifstream file("Supp_table_f2.txt");
 								while (!file.eof()) {
-									//cout << "Hi, babe" << endl;
 									k[0] = '\0';
 									file.getline(k, 256, '\n');
 									m[0] = '\0';
 									strcpy_s(m, "конец");
 									if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
 									else send((SOCKET)newS, k, sizeof(k), 0);
-									//cout << k << endl;
 								}
 								k[0] = '\0';
 							}
@@ -2021,28 +1999,28 @@ void mailWorking(void* newS) {
 							k[0] = '\0';
 							break;
 						}
-						case 4: {
+						case 4: {                    //поиск конкретного поставщика
 							strcpy_s(p, "4");
 							send((SOCKET)newS, p, sizeof(p), 0);
 							m[0] = '\0'; int tt;
 							recv((SOCKET)newS, m, sizeof(m), 0);
-							tt = supp.Find(lsupp, m);
-							if (tt == 0) {
+							supp.WriteFile(lsupp);
+							supp.WriteTable(lsupp);
+							tt = supp.Find(poten, m);
+							if (tt == 0) {            //сообщаем эксперту, что такой поставщик не был зарегистрирован
 								m[0] = '\0';
-								strcpy_s(m, "Такой поставщик не был зарегистрирован!\n");
+								strcpy_s(m, "Такого поставщика нет среди потенциальных!\n");
 								send((SOCKET)newS, m, sizeof(m), 0);
 							}
 							else {
 								ifstream file("Supp_table_f.txt");
 								while (!file.eof()) {
-									//cout << "Hi, babe" << endl;
 									k[0] = '\0';
 									file.getline(k, 256, '\n');
 									m[0] = '\0';
 									strcpy_s(m, "конец");
 									if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
 									else send((SOCKET)newS, k, sizeof(k), 0);
-									//cout << k << endl;
 								}
 								k[0] = '\0';
 							}
@@ -2060,67 +2038,66 @@ void mailWorking(void* newS) {
 					c2 = 0;
 					break;
 				}
-				case 2: {
+				case 2: {                          //реализация метода ранга
+					p[0] = '\0';
 					strcpy_s(p, "2");
 					send((SOCKET)newS, p, sizeof(p), 0);
 					int ps, exn,sh;
+					supp.WriteFile(lsupp);
+					supp.WriteTable(lsupp);
 					list<Supplier> potential;
 					MakePotSupp(potential,lsupp);
-					/*cout << lsupp.size() << endl;
-					cout << potential.size() << endl;
-					cout << lexpert.size() << endl;*/
 					ps = potential.size();
 					exn = lexpert.size();
-					k[0] = '\0';
-					m[0] = '\0';
-					_itoa_s(ps, k, 10);
-					_itoa_s(exn, m, 10);
-					send((SOCKET)newS, k, sizeof(k), 0); //сообщаем клиенту количество потенц поставщиков
-					send((SOCKET)newS, m, sizeof(m), 0); //сообщаем количество действущих экспертов
-					int arr[50][50];
-					for (int i = 0; i < exn; i++) {
-						for (int j = 0; j < ps; j++) {
-							k[0] = '\0';
-							recv((SOCKET)newS, k, sizeof(k), 0);
-							arr[i][j] = atoi(k);
-						}
-					}
-					for (int i = 0; i < exn; i++) {
-						for (int j = 0; j < ps; j++) {
-							cout << arr[i][j] << "  ";
-						}
-						cout << endl;
-					}
-					Make1Table(arr, ps, exn);
-					Make2Table(arr, ps, exn);
-					sh=Make3Table(arr, ps, exn);
-					Make4Table(poten, sh);
-					int pointer = 0;
-					m[0] = '\0';
-					for (psupp = poten.begin(); psupp != poten.end(); psupp++) {
-						if (pointer == sh) {
-							cout << psupp->Get_nameorg() << endl;
-							strcpy_s(m, psupp->Get_nameorg());
-							break;
-						}
-						pointer++;
-					}
-					supp.Find(lsupp, m);
-					result[0] = '\0';
-					strcpy_s(result, m);
-					ifstream file("Supp_table_f.txt");
-					while (!file.eof()) {
-						//cout << "Hi, babe" << endl;
+					if((ps<2)||(exn<2)) send((SOCKET)newS, "a", sizeof("a"), 0);
+					else {
+						send((SOCKET)newS, "b", sizeof("b"), 0);
 						k[0] = '\0';
-						file.getline(k, 256, '\n');
 						m[0] = '\0';
-						strcpy_s(m, "конец");
-						if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
-						else send((SOCKET)newS, k, sizeof(k), 0);
-						//cout << k << endl;
+						_itoa_s(ps, k, 10);
+						_itoa_s(exn, m, 10);
+						send((SOCKET)newS, k, sizeof(k), 0); //сообщаем клиенту количество потенциальных поставщиков
+						send((SOCKET)newS, m, sizeof(m), 0); //сообщаем клиенту количество действущих экспертов
+						k[0] = '\0';
+						int arr[50][50];
+						for (int i = 0; i < exn; i++) {         //получение экспертных оценок
+							for (int j = 0; j < ps; j++) {
+								k[0] = '\0';
+								recv((SOCKET)newS, k, sizeof(k), 0);
+								arr[i][j] = atoi(k);
+							}
+						}
+						//реализация метода и запись результатов в файл
+						Make1Table(arr, ps, exn);               
+						Make2Table(arr, ps, exn);
+						sh = Make3Table(arr, ps, exn);
+						Make4Table(poten, sh);
+						//
+						int pointer = 0;
+						m[0] = '\0';
+						for (psupp = poten.begin(); psupp != poten.end(); psupp++) {
+							if (pointer == sh) {
+								strcpy_s(m, psupp->Get_nameorg());
+								break;
+							}
+							pointer++;
+						}
+						supp.Find(lsupp, m);
+						result[0] = '\0';
+						strcpy_s(result, m);
+						//отправляем клиенту информацию о выбранном методом ранга поствщике
+						ifstream file("Supp_table_f.txt");
+						while (!file.eof()) {
+							k[0] = '\0';
+							file.getline(k, 256, '\n');
+							m[0] = '\0';
+							strcpy_s(m, "конец");
+							if (file.eof()) 	send((SOCKET)newS, m, sizeof(m), 0);
+							else send((SOCKET)newS, k, sizeof(k), 0);
+						}
+						k[0] = '\0';
+						m[0] = '\0';
 					}
-					k[0] = '\0';
-					m[0] = '\0';
 					break;
 				}
 				case 3: {
@@ -2150,6 +2127,14 @@ void print() {
 	else printf("Нет подключений\n\n");
 }
 
+std::string remoteIP(SOCKADDR_IN FromAddr) {
+
+	return "Подключенный клиент имеет IP - " + std::to_string(FromAddr.sin_addr.S_un.S_un_b.s_b1) + "." +
+		std::to_string(FromAddr.sin_addr.S_un.S_un_b.s_b2) + "." +
+		std::to_string(FromAddr.sin_addr.S_un.S_un_b.s_b3) + "." +
+		std::to_string(FromAddr.sin_addr.S_un.S_un_b.s_b4) + "\n";
+}
+
 int main() {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
@@ -2176,7 +2161,9 @@ int main() {
 		SOCKET newS = accept(s, (struct sockaddr*)&remote, &j);
 		numbcl++;
 		print();
+		cout << remoteIP(remote) << endl;
 		_beginthread(mailWorking, 0, (void*)newS);  //создание потока(Начальный адрес процедуры, который начинает выполнение нового потока; размер стека нового потока или 0; список аргументов, передаваемый в новый поток, или NULL)
+
 	}
 	WSACleanup();  //прекращаем работу Winsock API
 	return 0;
